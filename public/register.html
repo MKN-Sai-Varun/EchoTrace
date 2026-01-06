@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css" />
+
     <title>Registration</title>
 </head>
 <body>
-  <h2>Register for EchoTrace</h2>
+  <div class="page">
+    <div class="container">
+      <h2>Create Account</h2>
 
-  <input id="username" placeholder="Username" />
-  <br><br>
-  <input id="password" type="password" placeholder="Password" />
-  <br><br>
+      <input id="username" placeholder="Username" />
+      <input id="password" type="password" placeholder="Password" />
 
-  <button onclick="register()">Register</button>
+      <button onclick="register()">Register</button>
 
-  <p>
-    Already have an account?
-    <a href="login.html">Login</a>
-  </p>
+      <div class="footer-text">
+        Already registered? <a href="login.html">Login</a>
+      </div>
+    </div>
+  </div>
 
   <script src="auth.js"></script>
-    
 </body>
+
 </html>

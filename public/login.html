@@ -3,22 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css" />
+
     <title>Login</title>
 </head>
 <body>
-    
-    <h2>EchoTrace Login</h2>
-    <input id="username" placeholder="Username" />
-    <input id="password" type="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <p>
-        New user?
-        <a href="register.html">Register here</a>
-    </p>
+  <div class="page">
+    <div class="container">
+      <h2>EchoTrace Login</h2>
 
+      <input id="username" placeholder="Username" />
+      <input id="password" type="password" placeholder="Password" />
 
-    <script src="auth.js"></script>
+      <button onclick="login()">Login</button>
 
-    
+      <div class="footer-text">
+        New user? <a href="register.html">Register</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
 </body>
+
 </html>
