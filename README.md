@@ -1,3 +1,89 @@
+# 📘 EchoTrace  
+### Event-Based Personal Timeline Reconstruction System
+
+---
+
+## 🧩 Introduction
+
+EchoTrace is a **day-to-day personal timeline system** that helps users understand **how their day actually unfolded**, rather than how it was planned. Instead of managing tasks or goals, EchoTrace focuses on **logging small, timestamped micro-events** and reconstructing them into a meaningful daily timeline.
+
+Modern productivity tools emphasize planning, reminders, and habits. However, people often lose track of **context switches**, **idle gaps**, and **small distractions** that accumulate throughout the day. EchoTrace addresses this gap by acting as a lightweight **event stream for personal activity**, enabling reflection, awareness, and future insight.
+
+The system is intentionally designed to start **simple and synchronous**, while remaining **architecturally ready** for background processing, analytics, and rich frontend upgrades in later phases.
+
+---
+
+## 🎯 Problem Statement
+
+People frequently struggle to answer questions like:
+- *Where did my time actually go today?*
+- *Why did I feel busy but not productive?*
+- *How often do I switch contexts during the day?*
+
+Most tools focus on **what should be done**, not **what actually happened**. EchoTrace fills this gap by capturing reality through micro-events and reconstructing daily timelines that highlight gaps, switches, and patterns.
+
+---
+
+## 💡 Solution Overview
+
+EchoTrace allows users to:
+- Log short, frictionless micro-events throughout the day
+- Automatically timestamp and store events
+- View a reconstructed daily timeline
+- Identify inactivity gaps and frequent context switches
+
+Rather than enforcing structure, EchoTrace passively records activity and derives insight later.
+
+---
+
+## 🏗️ High-Level Architecture (Phase-0)
+
+# 📘 EchoTrace  
+### Event-Based Personal Timeline Reconstruction System
+
+---
+
+## 🧩 Introduction
+
+EchoTrace is a **day-to-day personal timeline system** that helps users understand **how their day actually unfolded**, rather than how it was planned. Instead of managing tasks or goals, EchoTrace focuses on **logging small, timestamped micro-events** and reconstructing them into a meaningful daily timeline.
+
+Modern productivity tools emphasize planning, reminders, and habits. However, people often lose track of **context switches**, **idle gaps**, and **small distractions** that accumulate throughout the day. EchoTrace addresses this gap by acting as a lightweight **event stream for personal activity**, enabling reflection, awareness, and future insight.
+
+The system is intentionally designed to start **simple and synchronous**, while remaining **architecturally ready** for background processing, analytics, and rich frontend upgrades in later phases.
+
+---
+
+## 🎯 Problem Statement
+
+People frequently struggle to answer questions like:
+- *Where did my time actually go today?*
+- *Why did I feel busy but not productive?*
+- *How often do I switch contexts during the day?*
+
+Most tools focus on **what should be done**, not **what actually happened**. EchoTrace fills this gap by capturing reality through micro-events and reconstructing daily timelines that highlight gaps, switches, and patterns.
+
+---
+
+## 💡 Solution Overview
+
+EchoTrace allows users to:
+- Log short, frictionless micro-events throughout the day
+- Automatically timestamp and store events
+- View a reconstructed daily timeline
+- Identify inactivity gaps and frequent context switches
+
+Rather than enforcing structure, EchoTrace passively records activity and derives insight later.
+
+---
+
+## 🏗️ High-Level Architecture (Phase-0)
+
+Browser (HTML + JavaScript)  
+↓  
+Node.js REST API  
+↓  
+MongoDB
+
 
 The system follows a **clean separation of concerns**, allowing future enhancements (background jobs, analytics, React UI) without refactoring core logic.
 
