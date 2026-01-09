@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <title>Dashboard</title>
+    <title>Dashboard - EchoTrace</title>
 </head>
 <body>
     <div class="dashboard-page">
         <div class="dashboard">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="margin-bottom: 0;">EchoTrace Dashboard</h2>
+            <div class="dashboard-header">
+                <h2>EchoTrace</h2>
                 <button onclick="logout()" class="logout-btn">Logout</button>
             </div>
 
-            <div style="display: flex; gap: 8px; margin-bottom: 24px;">
-                <input id="label" placeholder="What did you just do?" style="margin-bottom: 0; flex: 1;" />
+            <div class="input-group">
+                <input id="label" placeholder="What did you just do?" autocomplete="off" />
                 <button onclick="addEvent()" class="log-btn">Log</button>
             </div>
 
@@ -26,6 +26,10 @@
     <script src="app.js"></script>
     <script>
         async function logout() {
+            const btn = document.querySelector('.logout-btn');
+            btn.disabled = true;
+            btn.textContent = 'Logging out...';
+            
             try {
                 const response = await fetch('/api/auth/logout', {
                     method: 'POST',
@@ -33,7 +37,10 @@
                 });
                 
                 if (response.ok) {
-                    window.location.href = '/login.html';
+                    showNotification('Logged out successfully', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 500);
                 }
             } catch (error) {
                 console.error('Logout error:', error);

@@ -4,26 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css" />
-
-    <title>Registration</title>
+    <title>Register - EchoTrace</title>
 </head>
 <body>
   <div class="page">
     <div class="container">
       <h2>Create Account</h2>
 
-      <input id="username" placeholder="Username" />
-      <input id="password" type="password" placeholder="Password" />
+      <input id="username" placeholder="Username (3-30 characters)" autocomplete="username" />
+      <input id="password" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password" />
 
-      <button onclick="register()">Register</button>
+      <button onclick="register()">Create Account</button>
 
       <div class="footer-text">
-        Already registered? <a href="login.html">Login</a>
+        Already have an account? <a href="login.html">Login</a>
       </div>
     </div>
   </div>
 
   <script src="auth.js"></script>
 </body>
-
 </html>
