@@ -9,10 +9,11 @@
 
 /* BASE */
 body {
-  background: #0f172a; /* slate-900 */
+  background: #0b201e;
   color: #e5e7eb;
   min-height: 100vh;
 }
+
 
 /* PAGE WRAPPER */
 .page {
@@ -24,7 +25,7 @@ body {
 
 /* CARD */
 .container {
-  background: #020617; /* slate-950 */
+  background: #141702; /* slate-950 */
   padding: 28px;
   width: 360px;
   border-radius: 12px;
@@ -63,7 +64,7 @@ button {
   padding: 10px;
   border-radius: 8px;
   border: none;
-  background: #2563eb;
+  background: #257beb;
   color: white;
   font-size: 14px;
   font-weight: 500;
@@ -127,4 +128,186 @@ a:hover {
   font-size: 12px;
   color: #f87171;
   margin: 10px 0;
+}
+
+/* LOG BUTTON */
+.log-btn {
+  width: auto;
+  padding: 10px 24px;
+  white-space: nowrap;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+/* TIMELINE CONTAINER */
+.timeline-container {
+  position: relative;
+  padding-left: 32px;
+}
+
+/* TIMELINE ITEMS */
+.timeline-item {
+  position: relative;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.timeline-item:hover {
+  border-color: #334155;
+}
+
+/* TIMELINE DOT */
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -32px;
+  top: 20px;
+  width: 12px;
+  height: 12px;
+  background: #257beb;
+  border: 3px solid #0b201e;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+/* TIMELINE LINE */
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 32px;
+  bottom: -16px;
+  width: 2px;
+  background: #1e293b;
+}
+
+/* LAST ITEM - NO LINE */
+.timeline-item:last-child::after {
+  display: none;
+}
+
+/* TIME */
+.timeline-time {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+/* LABEL */
+.timeline-label {
+  font-size: 14px;
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+/* TIMELINE ANIMATIONS */
+.timeline-item {
+  position: relative;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  
+  /* Fade in from left */
+  animation: slideInLeft 0.4s ease-out;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+/* Stagger animation delay for multiple items */
+.timeline-item:nth-child(1) { animation-delay: 0s; }
+.timeline-item:nth-child(2) { animation-delay: 0.1s; }
+.timeline-item:nth-child(3) { animation-delay: 0.2s; }
+.timeline-item:nth-child(4) { animation-delay: 0.3s; }
+.timeline-item:nth-child(5) { animation-delay: 0.4s; }
+.timeline-item:nth-child(n+6) { animation-delay: 0.5s; }
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Hover effect */
+.timeline-item:hover {
+  border-color: #334155;
+  transform: translateX(4px);
+}
+
+/* DOT PULSE ANIMATION */
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -32px;
+  top: 20px;
+  width: 12px;
+  height: 12px;
+  background: #257beb;
+  border: 3px solid #0b201e;
+  border-radius: 50%;
+  z-index: 2;
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(37, 123, 235, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(37, 123, 235, 0);
+  }
+}
+
+/* LINE DRAW ANIMATION */
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 32px;
+  bottom: -16px;
+  width: 2px;
+  background: #1e293b;
+  animation: lineGrow 0.4s ease-out;
+  transform-origin: top;
+}
+
+@keyframes lineGrow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* NEW ITEM HIGHLIGHT (for freshly added items) */
+.timeline-item.new-item {
+  animation: highlightNew 1s ease-out;
+}
+
+@keyframes highlightNew {
+  0% {
+    background: #1e3a8a;
+    border-color: #257beb;
+  }
+  100% {
+    background: #020617;
+    border-color: #1e293b;
+  }
 }
