@@ -26,7 +26,22 @@ const registerValidation = [
     .withMessage("Username can only contain letters, numbers, and underscores"),
   body("password")
     .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters")
+    .withMessage("Password must be at least 6 characters"),
+  body("email")
+    .optional({ checkFalsy: true })
+    .isEmail()
+    .withMessage("Please enter a valid email address")
+    .normalizeEmail(),
+  body("firstName")
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("First name must be less than 50 characters"),
+  body("lastName")
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Last name must be less than 50 characters")
 ];
 
 const loginValidation = [
@@ -43,7 +58,7 @@ router.post("/register", registerValidation, async (req, res) => {
       return res.status(400).json({ error: errors.array()[0].msg });
     }
 
-    const { username, password } = req.body;
+    const { username, password, email, firstName, lastName } = req.body;
 
     // Check if username already exists
     const existingUser = await User.findOne({ username });
@@ -51,12 +66,23 @@ router.post("/register", registerValidation, async (req, res) => {
       return res.status(400).json({ error: "Username already taken" });
     }
 
+    // Check if email already exists (if provided)
+    if (email) {
+      const existingEmail = await User.findOne({ email: email.toLowerCase() });
+      if (existingEmail) {
+        return res.status(400).json({ error: "Email already registered" });
+      }
+    }
+
     console.log("Registering user:", username);
     const hash = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       username,
-      passwordHash: hash
+      passwordHash: hash,
+      email: email || undefined,
+      firstName: firstName || undefined,
+      lastName: lastName || undefined
     });
 
     const sessionId = crypto.randomUUID();
@@ -145,7 +171,7 @@ router.get("/me", async (req, res) => {
       return res.status(401).json({ error: "Session expired" });
     }
 
-    const user = await User.findById(session.userId).select("username theme createdAt");
+    const user = await User.findById(session.userId).select("username email firstName lastName theme createdAt");
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }

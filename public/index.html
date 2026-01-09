@@ -36,6 +36,11 @@
                 <span class="logo-text">EchoTrace</span>
             </div>
             <div class="nav-buttons">
+                <!-- Dark/Light Mode Toggle -->
+                <button class="mode-toggle" onclick="toggleMode()">
+                    <span class="mode-toggle-icon" id="modeIcon">🌙</span>
+                    <span class="mode-toggle-text" id="modeText">Dark</span>
+                </button>
                 <a href="login.html" class="nav-btn nav-btn-ghost">Login</a>
                 <a href="register.html" class="nav-btn nav-btn-primary">Get Started</a>
             </div>
@@ -170,6 +175,37 @@
         document.querySelectorAll('.feature-card, .section-title').forEach(el => {
             observer.observe(el);
         });
+
+        // Dark/Light Mode Toggle
+        function toggleMode() {
+            const html = document.documentElement;
+            const currentMode = html.getAttribute('data-mode') || 'dark';
+            const newMode = currentMode === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-mode', newMode);
+            localStorage.setItem('echotraceMode', newMode);
+            updateModeToggle(newMode);
+        }
+
+        function updateModeToggle(mode) {
+            const icon = document.getElementById('modeIcon');
+            const text = document.getElementById('modeText');
+            
+            if (mode === 'light') {
+                icon.textContent = '☀️';
+                text.textContent = 'Light';
+            } else {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark';
+            }
+        }
+
+        // Initialize mode from localStorage
+        (function() {
+            const savedMode = localStorage.getItem('echotraceMode') || 'dark';
+            document.documentElement.setAttribute('data-mode', savedMode);
+            updateModeToggle(savedMode);
+        })();
     </script>
 </body>
 </html>

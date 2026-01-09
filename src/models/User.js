@@ -9,6 +9,22 @@ const UserSchema = new mongoose.Schema({
     minlength: 3,
     maxlength: 30
   },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    sparse: true // Allows null/undefined but unique when present
+  },
+  firstName: {
+    type: String,
+    trim: true,
+    maxlength: 50
+  },
+  lastName: {
+    type: String,
+    trim: true,
+    maxlength: 50
+  },
   passwordHash: {
     type: String,
     required: true
@@ -23,6 +39,7 @@ const UserSchema = new mongoose.Schema({
 
 // Index for faster username lookups
 UserSchema.index({ username: 1 });
+UserSchema.index({ email: 1 }, { sparse: true });
 
 export default mongoose.model("User", UserSchema);
     

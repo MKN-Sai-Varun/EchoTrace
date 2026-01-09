@@ -15,6 +15,7 @@
                     <div class="greeting-name" id="greetingName">Loading...</div>
                 </div>
                 <div class="header-actions">
+                    <button onclick="toggleMode()" class="mode-toggle-btn" id="modeBtnDash" title="Toggle dark/light mode">🌙</button>
                     <button onclick="toggleSettings()" class="settings-toggle">⚙️ Theme</button>
                     <button onclick="logout()" class="logout-btn">Logout</button>
                 </div>
@@ -98,9 +99,10 @@
 
                 const user = await res.json();
                 
-                // Set greeting
+                // Set greeting - use firstName if available, otherwise username
                 document.getElementById('greetingText').textContent = getGreeting() + ',';
-                document.getElementById('greetingName').textContent = user.username;
+                const displayName = user.firstName || user.username;
+                document.getElementById('greetingName').textContent = displayName;
                 
                 // Set theme
                 if (user.theme) {
@@ -138,6 +140,31 @@
 
         // Initialize
         loadUserData();
+
+        // Dark/Light Mode Toggle
+        function toggleMode() {
+            const html = document.documentElement;
+            const currentMode = html.getAttribute('data-mode') || 'dark';
+            const newMode = currentMode === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-mode', newMode);
+            localStorage.setItem('echotraceMode', newMode);
+            updateModeToggle(newMode);
+        }
+
+        function updateModeToggle(mode) {
+            const btn = document.getElementById('modeBtnDash');
+            if (btn) {
+                btn.textContent = mode === 'light' ? '☀️' : '🌙';
+            }
+        }
+
+        // Initialize mode from localStorage
+        (function() {
+            const savedMode = localStorage.getItem('echotraceMode') || 'dark';
+            document.documentElement.setAttribute('data-mode', savedMode);
+            updateModeToggle(savedMode);
+        })();
     </script>
 </body>
 </html>

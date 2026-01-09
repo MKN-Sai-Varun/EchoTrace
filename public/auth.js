@@ -72,39 +72,72 @@ async function login() {
       }, 1000);
     } else {
       showNotification(data.error || "Login failed", "error");
-      setButtonLoading(button, false, "Login");
+      setButtonLoading(button, false, "Sign In");
       passwordInput.value = "";
       passwordInput.focus();
     }
   } catch (error) {
     showNotification("Network error. Please try again.", "error");
-    setButtonLoading(button, false, "Login");
+    setButtonLoading(button, false, "Sign In");
   }
 }
 
 async function register() {
   const usernameInput = document.getElementById("username");
   const passwordInput = document.getElementById("password");
+  const confirmPasswordInput = document.getElementById("confirmPassword");
+  const termsCheckbox = document.getElementById("termsAccepted");
+  const emailInput = document.getElementById("email");
+  const firstNameInput = document.getElementById("firstName");
+  const lastNameInput = document.getElementById("lastName");
   const button = document.getElementById("registerBtn") || document.querySelector("button");
 
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value;
+  const username = usernameInput?.value.trim();
+  const password = passwordInput?.value;
+  const confirmPassword = confirmPasswordInput?.value;
+  const email = emailInput?.value.trim();
+  const firstName = firstNameInput?.value.trim();
+  const lastName = lastNameInput?.value.trim();
 
+  // Validation
   if (!username || !password) {
     showNotification("Please enter username and password", "error");
-    usernameInput.focus();
+    usernameInput?.focus();
     return;
   }
 
   if (username.length < 3) {
     showNotification("Username must be at least 3 characters", "error");
-    usernameInput.focus();
+    usernameInput?.focus();
+    return;
+  }
+
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+    showNotification("Username can only contain letters, numbers, and underscores", "error");
+    usernameInput?.focus();
     return;
   }
 
   if (password.length < 6) {
     showNotification("Password must be at least 6 characters", "error");
-    passwordInput.focus();
+    passwordInput?.focus();
+    return;
+  }
+
+  if (confirmPasswordInput && password !== confirmPassword) {
+    showNotification("Passwords do not match", "error");
+    confirmPasswordInput?.focus();
+    return;
+  }
+
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showNotification("Please enter a valid email address", "error");
+    emailInput?.focus();
+    return;
+  }
+
+  if (termsCheckbox && !termsCheckbox.checked) {
+    showNotification("Please accept the Terms of Service", "error");
     return;
   }
 
@@ -116,13 +149,20 @@ async function register() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ 
+        username, 
+        password,
+        email: email || undefined,
+        firstName: firstName || undefined,
+        lastName: lastName || undefined
+      })
     });
 
     const data = await res.json();
 
     if (res.ok) {
-      showNotification(`Welcome, ${username}! Your account is ready.`, "success");
+      const displayName = firstName || username;
+      showNotification(`Welcome, ${displayName}! Your account is ready.`, "success");
       setTimeout(() => {
         window.location.href = "/dashboard.html";
       }, 1000);
@@ -138,17 +178,15 @@ async function register() {
 
 // Allow Enter key to submit forms
 document.addEventListener("DOMContentLoaded", () => {
-  const passwordInput = document.getElementById("password");
-  if (passwordInput) {
-    passwordInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        // Determine if we're on login or register page
-        if (window.location.pathname.includes("register")) {
-          register();
-        } else {
-          login();
-        }
+  // Handle form submission with Enter key
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => {
+    form.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.click();
       }
     });
-  }
+  });
 });
