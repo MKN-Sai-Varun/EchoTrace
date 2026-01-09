@@ -60,7 +60,7 @@ app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/events", eventRoutes);
 
 app.get("/", (req, res) => {
-  res.redirect("/login.html");
+  res.sendFile("index.html", { root: "public" });
 });
 
 // Global error handler

@@ -10,13 +10,31 @@
     <div class="dashboard-page">
         <div class="dashboard">
             <div class="dashboard-header">
-                <h2>EchoTrace</h2>
-                <button onclick="logout()" class="logout-btn">Logout</button>
+                <div class="greeting">
+                    <div class="greeting-text" id="greetingText">Good morning,</div>
+                    <div class="greeting-name" id="greetingName">Loading...</div>
+                </div>
+                <div class="header-actions">
+                    <button onclick="toggleSettings()" class="settings-toggle">⚙️ Theme</button>
+                    <button onclick="logout()" class="logout-btn">Logout</button>
+                </div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div id="settingsPanel" class="settings-panel hidden">
+                <h3>Choose your theme</h3>
+                <div class="theme-picker">
+                    <button class="theme-btn" data-theme="midnight" title="Midnight" onclick="setTheme('midnight')"></button>
+                    <button class="theme-btn" data-theme="ocean" title="Ocean" onclick="setTheme('ocean')"></button>
+                    <button class="theme-btn" data-theme="forest" title="Forest" onclick="setTheme('forest')"></button>
+                    <button class="theme-btn" data-theme="sunset" title="Sunset" onclick="setTheme('sunset')"></button>
+                    <button class="theme-btn" data-theme="lavender" title="Lavender" onclick="setTheme('lavender')"></button>
+                </div>
             </div>
 
             <div class="input-group">
                 <input id="label" placeholder="What did you just do?" autocomplete="off" />
-                <button onclick="addEvent()" class="log-btn">Log</button>
+                <button onclick="addEvent()" class="log-btn" id="logBtn">Log</button>
             </div>
 
             <div id="timeline" class="timeline-container"></div>
@@ -25,6 +43,76 @@
 
     <script src="app.js"></script>
     <script>
+        let currentTheme = 'midnight';
+        
+        // Get greeting based on time of day
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return "Good morning";
+            if (hour < 17) return "Good afternoon";
+            if (hour < 21) return "Good evening";
+            return "Good night";
+        }
+
+        // Toggle settings panel
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('hidden');
+        }
+
+        // Set theme
+        async function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            currentTheme = theme;
+            
+            // Update active button
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === theme);
+            });
+
+            // Save to server
+            try {
+                await fetch('/api/auth/preferences', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ theme })
+                });
+                showNotification('Theme updated!', 'success');
+            } catch (error) {
+                console.error('Failed to save theme:', error);
+            }
+        }
+
+        // Load user data
+        async function loadUserData() {
+            try {
+                const res = await fetch('/api/auth/me', {
+                    credentials: 'include'
+                });
+
+                if (res.status === 401) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const user = await res.json();
+                
+                // Set greeting
+                document.getElementById('greetingText').textContent = getGreeting() + ',';
+                document.getElementById('greetingName').textContent = user.username;
+                
+                // Set theme
+                if (user.theme) {
+                    setTheme(user.theme);
+                } else {
+                    setTheme('midnight');
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
         async function logout() {
             const btn = document.querySelector('.logout-btn');
             btn.disabled = true;
@@ -47,6 +135,9 @@
                 window.location.href = '/login.html';
             }
         }
+
+        // Initialize
+        loadUserData();
     </script>
 </body>
 </html>

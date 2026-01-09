@@ -13,6 +13,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  theme: {
+    type: String,
+    enum: ["midnight", "ocean", "forest", "sunset", "lavender"],
+    default: "midnight"
+  },
   createdAt: { type: Date, default: Date.now }
 });
 

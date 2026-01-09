@@ -24,22 +24,36 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// Show loading state on button - uses CSS dots animation
+function setButtonLoading(button, isLoading, originalText) {
+  if (isLoading) {
+    button.disabled = true;
+    button.classList.add("btn-loading");
+    button.dataset.originalText = button.textContent;
+    // Keep text but make it transparent (CSS handles the animation)
+  } else {
+    button.disabled = false;
+    button.classList.remove("btn-loading");
+    button.textContent = originalText || button.dataset.originalText;
+  }
+}
+
 async function login() {
   const usernameInput = document.getElementById("username");
   const passwordInput = document.getElementById("password");
-  const button = document.querySelector("button");
+  const button = document.getElementById("loginBtn") || document.querySelector("button");
 
   const username = usernameInput.value.trim();
   const password = passwordInput.value;
 
   if (!username || !password) {
     showNotification("Please enter username and password", "error");
+    usernameInput.focus();
     return;
   }
 
-  // Disable button during request
-  button.disabled = true;
-  button.textContent = "Logging in...";
+  // Show loading state
+  setButtonLoading(button, true);
 
   try {
     const res = await fetch("/api/auth/login", {
@@ -52,48 +66,50 @@ async function login() {
     const data = await res.json();
 
     if (res.ok) {
-      showNotification("Login successful! Redirecting...", "success");
+      showNotification(`Welcome back, ${username}! Redirecting...`, "success");
       setTimeout(() => {
         window.location.href = "/dashboard.html";
       }, 1000);
     } else {
       showNotification(data.error || "Login failed", "error");
-      button.disabled = false;
-      button.textContent = "Login";
+      setButtonLoading(button, false, "Login");
+      passwordInput.value = "";
+      passwordInput.focus();
     }
   } catch (error) {
     showNotification("Network error. Please try again.", "error");
-    button.disabled = false;
-    button.textContent = "Login";
+    setButtonLoading(button, false, "Login");
   }
 }
 
 async function register() {
   const usernameInput = document.getElementById("username");
   const passwordInput = document.getElementById("password");
-  const button = document.querySelector("button");
+  const button = document.getElementById("registerBtn") || document.querySelector("button");
 
   const username = usernameInput.value.trim();
   const password = passwordInput.value;
 
   if (!username || !password) {
     showNotification("Please enter username and password", "error");
+    usernameInput.focus();
     return;
   }
 
   if (username.length < 3) {
     showNotification("Username must be at least 3 characters", "error");
+    usernameInput.focus();
     return;
   }
 
   if (password.length < 6) {
     showNotification("Password must be at least 6 characters", "error");
+    passwordInput.focus();
     return;
   }
 
-  // Disable button during request
-  button.disabled = true;
-  button.textContent = "Creating account...";
+  // Show loading state
+  setButtonLoading(button, true);
 
   try {
     const res = await fetch("/api/auth/register", {
@@ -106,19 +122,17 @@ async function register() {
     const data = await res.json();
 
     if (res.ok) {
-      showNotification("Account created! Redirecting...", "success");
+      showNotification(`Welcome, ${username}! Your account is ready.`, "success");
       setTimeout(() => {
         window.location.href = "/dashboard.html";
       }, 1000);
     } else {
       showNotification(data.error || "Registration failed", "error");
-      button.disabled = false;
-      button.textContent = "Register";
+      setButtonLoading(button, false, "Create Account");
     }
   } catch (error) {
     showNotification("Network error. Please try again.", "error");
-    button.disabled = false;
-    button.textContent = "Register";
+    setButtonLoading(button, false, "Create Account");
   }
 }
 

@@ -26,19 +26,32 @@ function showNotification(message, type = "success") {
   setTimeout(() => notification.remove(), 4000);
 }
 
+// Button loading state helper - uses CSS dots animation
+function setButtonLoading(button, isLoading, originalText) {
+  if (isLoading) {
+    button.disabled = true;
+    button.classList.add("btn-loading");
+    button.dataset.originalText = button.textContent;
+  } else {
+    button.disabled = false;
+    button.classList.remove("btn-loading");
+    button.textContent = originalText || button.dataset.originalText;
+  }
+}
+
 async function addEvent() {
   const labelInput = document.getElementById("label");
   const label = labelInput.value.trim();
-  const button = document.querySelector(".log-btn");
+  const button = document.getElementById("logBtn") || document.querySelector(".log-btn");
 
   if (!label) {
     showNotification("Please enter what you did", "error");
+    labelInput.focus();
     return;
   }
 
-  // Disable button during request
-  button.disabled = true;
-  button.textContent = "Logging...";
+  // Show loading state
+  setButtonLoading(button, true);
 
   try {
     const res = await fetch("/api/events", {
@@ -54,7 +67,7 @@ async function addEvent() {
 
     if (res.ok) {
       labelInput.value = "";
-      showNotification("Event logged successfully!", "success");
+      showNotification("✓ Event logged!", "success");
       loadTimeline();
     } else {
       showNotification(data.error || "Failed to log event", "error");
@@ -62,8 +75,8 @@ async function addEvent() {
   } catch (error) {
     showNotification("Network error. Please try again.", "error");
   } finally {
-    button.disabled = false;
-    button.textContent = "Log";
+    setButtonLoading(button, false, "Log");
+    labelInput.focus();
   }
 }
 

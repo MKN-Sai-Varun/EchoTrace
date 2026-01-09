@@ -132,4 +132,69 @@ router.post("/logout", async (req, res) => {
   }
 });
 
+/* GET CURRENT USER */
+router.get("/me", async (req, res) => {
+  try {
+    const sessionId = getSessionIdFromCookie(req.headers.cookie);
+    if (!sessionId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const session = await Session.findOne({ sessionId });
+    if (!session) {
+      return res.status(401).json({ error: "Session expired" });
+    }
+
+    const user = await User.findById(session.userId).select("username theme createdAt");
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    res.json({
+      username: user.username,
+      theme: user.theme || "midnight",
+      createdAt: user.createdAt
+    });
+  } catch (error) {
+    console.error("Get user error:", error);
+    res.status(500).json({ error: "Failed to get user info" });
+  }
+});
+
+/* UPDATE USER PREFERENCES */
+router.patch("/preferences", async (req, res) => {
+  try {
+    const sessionId = getSessionIdFromCookie(req.headers.cookie);
+    if (!sessionId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const session = await Session.findOne({ sessionId });
+    if (!session) {
+      return res.status(401).json({ error: "Session expired" });
+    }
+
+    const { theme } = req.body;
+    const validThemes = ["midnight", "ocean", "forest", "sunset", "lavender"];
+    
+    if (theme && !validThemes.includes(theme)) {
+      return res.status(400).json({ error: "Invalid theme" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      session.userId,
+      { theme },
+      { new: true }
+    ).select("username theme");
+
+    res.json({
+      message: "Preferences updated",
+      theme: user.theme
+    });
+  } catch (error) {
+    console.error("Update preferences error:", error);
+    res.status(500).json({ error: "Failed to update preferences" });
+  }
+});
+
 export default router;
