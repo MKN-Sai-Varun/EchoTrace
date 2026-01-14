@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 
 import authRoutes from "./routes/authRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
+import analysisRoutes from "./routes/analysisRoutes.js";
 
 dotenv.config();
 
@@ -58,6 +59,7 @@ mongoose.connection.on("error", (err) => {
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/analysis", analysisRoutes);
 
 app.get("/", (req, res) => {
   res.sendFile("index.html", { root: "public" });

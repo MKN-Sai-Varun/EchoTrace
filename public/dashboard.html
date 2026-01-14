@@ -38,7 +38,105 @@
                 <button onclick="addEvent()" class="log-btn" id="logBtn">Log</button>
             </div>
 
-            <div id="timeline" class="timeline-container"></div>
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="timeline" onclick="switchTab('timeline')">📋 Timeline</button>
+                <button class="tab-btn" data-tab="analysis" onclick="switchTab('analysis')">📊 Today</button>
+                <button class="tab-btn" data-tab="history" onclick="switchTab('history')">📈 History</button>
+            </div>
+
+            <!-- Timeline Tab -->
+            <div id="timelineTab" class="tab-content active">
+                <div id="timeline" class="timeline-container"></div>
+            </div>
+
+            <!-- Analysis Tab -->
+            <div id="analysisTab" class="tab-content hidden">
+                <div class="analysis-container">
+                    <div class="analysis-header">
+                        <h3>Today's Analysis</h3>
+                        <button onclick="refreshAnalysis()" class="refresh-btn" id="refreshBtn">🔄 Refresh</button>
+                    </div>
+                    
+                    <!-- Productivity Score -->
+                    <div class="productivity-card">
+                        <div class="score-circle" id="scoreCircle">
+                            <span class="score-value" id="productivityScore">--</span>
+                        </div>
+                        <div class="score-label">Productivity Score</div>
+                    </div>
+
+                    <!-- Category Breakdown -->
+                    <div class="category-breakdown" id="categoryBreakdown">
+                        <h4>Category Breakdown</h4>
+                        <div class="categories-list" id="categoriesList"></div>
+                    </div>
+
+                    <!-- Insights -->
+                    <div class="insights-card" id="insightsCard">
+                        <h4>💡 Insights</h4>
+                        <ul class="insights-list" id="insightsList"></ul>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div class="recommendations-card" id="recommendationsCard">
+                        <h4>🎯 Recommendations</h4>
+                        <ul class="recommendations-list" id="recommendationsList"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div id="historyTab" class="tab-content hidden">
+                <div class="history-container">
+                    <div class="history-header">
+                        <h3>Your Progress</h3>
+                        <select id="historyRange" onchange="loadHistory()">
+                            <option value="7">Last 7 days</option>
+                            <option value="14">Last 14 days</option>
+                            <option value="30">Last 30 days</option>
+                        </select>
+                    </div>
+
+                    <!-- Improvement Summary -->
+                    <div class="improvement-card" id="improvementCard">
+                        <div class="improvement-stat">
+                            <span class="improvement-label">Avg. Score</span>
+                            <span class="improvement-value" id="avgScore">--</span>
+                        </div>
+                        <div class="improvement-stat">
+                            <span class="improvement-label">Trend</span>
+                            <span class="improvement-value" id="trendIndicator">--</span>
+                        </div>
+                        <div class="improvement-stat">
+                            <span class="improvement-label">Best Day</span>
+                            <span class="improvement-value" id="bestDay">--</span>
+                        </div>
+                        <div class="improvement-stat">
+                            <span class="improvement-label">Total Events</span>
+                            <span class="improvement-value" id="totalEvents">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Score Chart -->
+                    <div class="chart-card">
+                        <h4>📈 Productivity Trend</h4>
+                        <div class="chart-container" id="scoreChart"></div>
+                    </div>
+
+                    <!-- Category Trends -->
+                    <div class="trends-card">
+                        <h4>🏆 Top Categories This Period</h4>
+                        <div class="trends-list" id="trendsList"></div>
+                    </div>
+
+                    <!-- Daily History -->
+                    <div class="daily-history">
+                        <h4>📅 Daily Breakdown</h4>
+                        <div class="history-list" id="historyList"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
