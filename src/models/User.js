@@ -37,9 +37,5 @@ const UserSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// Index for faster username lookups
-UserSchema.index({ username: 1 });
-UserSchema.index({ email: 1 }, { sparse: true });
-
 export default mongoose.model("User", UserSchema);
     

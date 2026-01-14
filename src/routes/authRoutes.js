@@ -112,7 +112,13 @@ router.post("/login", loginValidation, async (req, res) => {
     const { username, password } = req.body;
     console.log("Logging in user:", username);
 
-    const user = await User.findOne({ username });
+    // Allow login with either username or email
+    const user = await User.findOne({
+      $or: [
+        { username: username },
+        { email: username.toLowerCase() }
+      ]
+    });
     if (!user) {
       return res.status(401).json({ error: "Invalid username or password" });
     }

@@ -18,8 +18,7 @@ const SessionSchema = new mongoose.Schema({
   }
 });
 
-// Index for faster session lookups
-SessionSchema.index({ sessionId: 1 });
+// Index for user lookups
 SessionSchema.index({ userId: 1 });
 
 export default mongoose.model("Session", SessionSchema);
