@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
@@ -24,6 +25,12 @@ const app = express();
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: false // Allow inline scripts for simplicity
+}));
+
+// CORS middleware
+app.use(cors({
+  origin: "http://localhost:3001", // Next.js dev server port
+  credentials: true
 }));
 
 // Rate limiting
