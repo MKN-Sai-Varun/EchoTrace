@@ -4,9 +4,19 @@ import { motion } from "framer-motion";
 import { Activity, Plus, TrendingUp, CheckCircle2, Clock, Map, Target } from "lucide-react";
 import { useState, useEffect } from "react";
 
+import CustomCursor from "@/components/CustomCursor";
+
 export default function Dashboard() {
   const [eventInput, setEventInput] = useState("");
   const [mounted, setMounted] = useState(false);
+  type EventType = {
+    time: string;
+    label: string;
+    category: string;
+    color: string;
+    dot: string;
+  };
+  const [events, setEvents] = useState<EventType[]>([]);
 
   useEffect(() => {
     setMounted(true);
@@ -15,14 +25,48 @@ export default function Dashboard() {
   const handleAddEvent = (e: React.FormEvent) => {
     e.preventDefault();
     if (!eventInput.trim()) return;
-    // In a real app, send to API here
+    
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    let category = "Uncategorized";
+    let color = "bg-slate-100 text-slate-600";
+    let dot = "bg-slate-500";
+    
+    const lowerInput = eventInput.toLowerCase();
+    
+    // Basic AI-like keyword categorization
+    if (/(work|meeting|email|project|cod|call|zoom|sync|review|task|read)/i.test(lowerInput)) {
+      category = "Work";
+      color = "bg-blue-100 text-blue-600";
+      dot = "bg-blue-500";
+    } else if (/(run|walk|gym|exercise|workout|water|sleep|lunch|dinner|breakfast|meal|break|health|meditat)/i.test(lowerInput)) {
+      category = "Health";
+      color = "bg-emerald-100 text-emerald-600";
+      dot = "bg-emerald-500";
+    } else if (/(friend|chat|hangout|party|family|social|together|date)/i.test(lowerInput)) {
+      category = "Social";
+      color = "bg-orange-100 text-orange-600";
+      dot = "bg-orange-500";
+    }
+
+    const newEvent = {
+      time: timeString,
+      label: eventInput,
+      category,
+      color,
+      dot
+    };
+
+    setEvents(prev => [...prev, newEvent]);
     setEventInput("");
   };
 
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col min-h-screen px-4 md:px-8 py-6 max-w-[1600px] mx-auto w-full">
+    <div className="flex flex-col min-h-screen px-4 md:px-8 py-6 max-w-[1600px] mx-auto w-full cursor-none">
+      <CustomCursor />
       {/* Header */}
       <header className="flex justify-between items-center mb-8 glass-card px-6 py-4">
         <div className="flex items-center gap-3">
@@ -77,19 +121,14 @@ export default function Dashboard() {
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-indigo-500" /> Today's Timeline
               </h2>
-              <span className="text-sm font-medium text-slate-500">4 activities</span>
+              <span className="text-sm font-medium text-slate-500">{events.length} activities</span>
             </div>
 
             <div className="flex flex-col gap-4 relative">
-              {/* Timeline connecting line */}
-              <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-slate-200" />
-
-              {[
-                { time: "09:00 AM", label: "Morning run & podcast", category: "Health", color: "bg-emerald-100 text-emerald-600", dot: "bg-emerald-500" },
-                { time: "10:15 AM", label: "Deep work: Project X", category: "Work", color: "bg-blue-100 text-blue-600", dot: "bg-blue-500" },
-                { time: "12:30 PM", label: "Lunch with Sarah", category: "Social", color: "bg-orange-100 text-orange-600", dot: "bg-orange-500" },
-                { time: "02:00 PM", label: "Team sync meeting", category: "Work", color: "bg-blue-100 text-blue-600", dot: "bg-blue-500" }
-              ].map((item, i) => (
+              {events.length > 0 ? (
+                <>
+                  <div className="absolute left-[69px] top-8 bottom-8 w-0.5 bg-slate-200 z-0" />
+                  {events.map((item, i) => (
                 <motion.div 
                   key={i}
                   initial={{ opacity: 0, x: -20 }}
@@ -109,6 +148,12 @@ export default function Dashboard() {
                   </div>
                 </motion.div>
               ))}
+                </>
+              ) : (
+                <div className="text-center py-10 text-slate-500 font-medium">
+                  No activities logged yet. Start typing above!
+                </div>
+              )}
             </div>
           </motion.div>
 
@@ -129,69 +174,76 @@ export default function Dashboard() {
             
             <div className="w-32 h-32 rounded-full border-8 border-emerald-400 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(52,211,153,0.3)] relative">
               <div className="absolute inset-2 border-2 border-dashed border-emerald-200 rounded-full animate-[spin_10s_linear_infinite]" />
-              <span className="text-4xl font-black text-slate-800">85</span>
+              <span className="text-4xl font-black text-slate-800">{Math.min(100, events.length * 15)}</span>
             </div>
             
-            <p className="text-sm font-medium text-slate-500">Top 15% of your days</p>
+            <p className="text-sm font-medium text-slate-500">
+              {events.length === 0 ? "Log an event to get started" : `Based on ${events.length} activities`}
+            </p>
           </motion.div>
 
-          {/* AI Insights Card */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="glass-card p-6"
-          >
-            <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-rose-500" /> AI Insights
-            </h2>
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-3 items-start p-3 bg-white/50 rounded-xl border border-white/50">
-                <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <p className="text-sm font-medium text-slate-700">Great focus today! You've had 2 deep work blocks without interruptions.</p>
-              </div>
-              <div className="flex gap-3 items-start p-3 bg-white/50 rounded-xl border border-white/50">
-                <Target className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                <p className="text-sm font-medium text-slate-700">You haven't logged any physical activity since morning. A quick walk is recommended.</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Categories Summary */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4 }}
-            className="glass-card p-6 flex-grow"
-          >
-            <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <Map className="w-5 h-5 text-purple-500" /> Breakdown
-            </h2>
-            
-            <div className="flex flex-col gap-4">
-              {[
-                { name: "Work", percent: 45, color: "bg-blue-500" },
-                { name: "Health", percent: 25, color: "bg-emerald-500" },
-                { name: "Social", percent: 15, color: "bg-orange-500" },
-                { name: "Uncategorized", percent: 15, color: "bg-slate-400" }
-              ].map((cat, i) => (
-                <div key={i} className="flex flex-col gap-1">
-                  <div className="flex justify-between text-sm font-medium text-slate-700">
-                    <span>{cat.name}</span>
-                    <span>{cat.percent}%</span>
+          {/* Conditional Cards */}
+          {events.length > 0 && (
+            <>
+              {/* AI Insights Card */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
+                className="glass-card p-6"
+              >
+                <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-rose-500" /> AI Insights
+                </h2>
+                <div className="flex flex-col gap-3">
+                  <div className="flex gap-3 items-start p-3 bg-white/50 rounded-xl border border-white/50">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                    <p className="text-sm font-medium text-slate-700">Great focus today! You've had 2 deep work blocks without interruptions.</p>
                   </div>
-                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${cat.percent}%` }}
-                      transition={{ duration: 1, delay: 0.5 + (i * 0.1) }}
-                      className={`h-full rounded-full ${cat.color}`} 
-                    />
+                  <div className="flex gap-3 items-start p-3 bg-white/50 rounded-xl border border-white/50">
+                    <Target className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                    <p className="text-sm font-medium text-slate-700">You haven't logged any physical activity since morning. A quick walk is recommended.</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </motion.div>
+              </motion.div>
+
+              {/* Categories Summary */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 }}
+                className="glass-card p-6 flex-grow"
+              >
+                <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                  <Map className="w-5 h-5 text-purple-500" /> Breakdown
+                </h2>
+                
+                <div className="flex flex-col gap-4">
+                  {[
+                    { name: "Work", percent: 45, color: "bg-blue-500" },
+                    { name: "Health", percent: 25, color: "bg-emerald-500" },
+                    { name: "Social", percent: 15, color: "bg-orange-500" },
+                    { name: "Uncategorized", percent: 15, color: "bg-slate-400" }
+                  ].map((cat, i) => (
+                    <div key={i} className="flex flex-col gap-1">
+                      <div className="flex justify-between text-sm font-medium text-slate-700">
+                        <span>{cat.name}</span>
+                        <span>{cat.percent}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${cat.percent}%` }}
+                          transition={{ duration: 1, delay: 0.5 + (i * 0.1) }}
+                          className={`h-full rounded-full ${cat.color}`} 
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </>
+          )}
 
         </div>
       </main>

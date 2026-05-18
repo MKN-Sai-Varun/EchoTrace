@@ -28,6 +28,10 @@
     --foreground: #0f172a;
   }
 
+  * {
+    cursor: none !important;
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);

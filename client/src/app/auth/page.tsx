@@ -27,28 +27,28 @@ export default function AuthPage() {
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center p-4 sm:p-8 overflow-hidden">
-      
+
       {/* Main Book Container */}
       <div className="w-full max-w-5xl h-[700px] glass-card relative flex overflow-hidden shadow-2xl">
-        
+
         {/* ================= BACKGROUND INFO PANELS (Layer 1) ================= */}
-        
+
         {/* Left Info Panel (Visible when Box is on the Right / Registration Mode) */}
         <div className="w-1/2 h-full flex flex-col justify-center px-12 py-8 relative">
           {/* Subtle gradient to differentiate */}
           <div className="absolute inset-0 bg-blue-500/5 -z-10" />
-          
+
           <div className="flex items-center gap-2 mb-8">
             <Activity className="w-8 h-8 text-blue-600" />
             <span className="text-2xl font-bold text-slate-800">EchoTrace</span>
           </div>
-          
+
           <h2 className="text-3xl font-extrabold text-slate-800 mb-6 leading-tight">
             Welcome back to your <span className="text-gradient">reality.</span>
           </h2>
-          
+
           <p className="text-slate-600 mb-8 leading-relaxed">
-            Your timeline awaits. Sign in to access your AI insights, view your productivity score, and log new events. 
+            Your timeline awaits. Sign in to access your AI insights, view your productivity score, and log new events.
           </p>
 
           <div className="flex flex-col gap-4 mb-10">
@@ -59,10 +59,10 @@ export default function AuthPage() {
               <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Get personalized AI routine suggestions.
             </div>
           </div>
-          
+
           <div>
             <p className="text-sm font-bold text-slate-500 mb-3">Already have an account?</p>
-            <button 
+            <button
               onClick={() => setIsLogin(true)}
               className="px-8 py-3 rounded-xl border-2 border-blue-500 text-blue-600 font-bold hover:bg-blue-50 transition-colors shadow-sm"
             >
@@ -81,9 +81,9 @@ export default function AuthPage() {
           </div>
 
           <h2 className="text-3xl font-extrabold text-slate-800 mb-6 leading-tight text-right">
-            Start tracking <br/><span className="text-emerald-600">your true time.</span>
+            Start tracking <br /><span className="text-emerald-600">your true time.</span>
           </h2>
-          
+
           <p className="text-slate-600 mb-8 leading-relaxed text-right">
             EchoTrace is an event-based timeline that helps you understand where your time actually went today. Stop guessing and start optimizing.
           </p>
@@ -99,7 +99,7 @@ export default function AuthPage() {
 
           <div className="flex flex-col items-end">
             <p className="text-sm font-bold text-slate-500 mb-3">New here?</p>
-            <button 
+            <button
               onClick={() => setIsLogin(false)}
               className="px-8 py-3 rounded-xl border-2 border-emerald-500 text-emerald-600 font-bold hover:bg-emerald-50 transition-colors shadow-sm"
             >
@@ -110,7 +110,7 @@ export default function AuthPage() {
 
 
         {/* ================= SLIDING FORM BOX (Layer 2) ================= */}
-        
+
         <motion.div
           animate={{ left: isLogin ? "0%" : "50%" }}
           transition={{ type: "spring", stiffness: 60, damping: 15 }}
@@ -119,7 +119,7 @@ export default function AuthPage() {
           <AnimatePresence mode="wait">
             {isLogin ? (
               // LOGIN FORM
-              <motion.div 
+              <motion.div
                 key="login"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -159,7 +159,7 @@ export default function AuthPage() {
               </motion.div>
             ) : (
               // REGISTER FORM
-              <motion.div 
+              <motion.div
                 key="register"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
