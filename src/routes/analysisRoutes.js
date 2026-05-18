@@ -61,6 +61,38 @@ router.post("/refresh", requireAuth, async (req, res) => {
   }
 });
 
+import { getAiAnalysis, getAiCategory } from "../services/aiService.js";
+
+/* POST AI analysis */
+router.post("/ai-analyze", requireAuth, async (req, res) => {
+  try {
+    const { events } = req.body;
+    if (!events || !Array.isArray(events)) {
+      return res.status(400).json({ error: "Events array is required" });
+    }
+    const aiAnalysis = await getAiAnalysis(events);
+    res.json(aiAnalysis);
+  } catch (error) {
+    console.error("AI Analysis route error:", error);
+    res.status(500).json({ error: "Failed to get AI analysis. Please ensure the AI_MODEL_URL is running." });
+  }
+});
+
+/* POST AI single event categorization */
+router.post("/categorize-single", requireAuth, async (req, res) => {
+  try {
+    const { label } = req.body;
+    if (!label) {
+      return res.status(400).json({ error: "Label string is required" });
+    }
+    const aiCategory = await getAiCategory(label);
+    res.json(aiCategory);
+  } catch (error) {
+    console.error("AI Categorize route error:", error);
+    res.status(500).json({ error: "Failed to get AI category." });
+  }
+});
+
 /* GET analysis history */
 router.get("/history", requireAuth, async (req, res) => {
   try {

@@ -7,6 +7,12 @@ import { useState, useEffect } from "react";
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Form fields
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (window.location.search.includes("mode=register")) {
@@ -14,16 +20,43 @@ export default function AuthPage() {
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
+    setError("");
+
+    const endpoint = isLogin
+      ? "http://localhost:3000/api/auth/login"
+      : "http://localhost:3000/api/auth/register";
+
+    const body = isLogin
+      ? { username, password }
+      : { username, email, password };
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Important: sends/receives cookies
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      // Session cookie is now set by the server — redirect to dashboard
       window.location.href = "/dashboard";
-    }, 1000);
+    } catch {
+      setError("Cannot connect to server. Is the backend running?");
+      setLoading(false);
+    }
   };
 
-  // The background theme is now handled cleanly by globals.css shapes.
-  // We removed the body style overriding to eliminate the purple tint.
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center p-4 sm:p-8 overflow-hidden">
@@ -134,25 +167,26 @@ export default function AuthPage() {
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
+                    <label className="text-sm font-bold text-slate-700 ml-1">Username or Email</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input type="text" required className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:bg-white" placeholder="you@example.com" />
+                      <input type="text" required value={username} onChange={e => setUsername(e.target.value)} className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:bg-white" placeholder="you@example.com or username" />
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-center ml-1">
                       <label className="text-sm font-bold text-slate-700">Password</label>
-                      <button type="button" className="text-xs font-bold text-blue-600 hover:text-blue-700">Forgot password?</button>
                     </div>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input type="password" required className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:bg-white" placeholder="••••••••" />
+                      <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:bg-white" placeholder="••••••••" />
                     </div>
                   </div>
 
-                  <button type="submit" disabled={loading} className="btn-primary w-full py-4 mt-4 flex justify-center items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-lg">
+                  {error && <p className="text-sm font-medium text-rose-600 bg-rose-50 px-4 py-2 rounded-xl border border-rose-200">{error}</p>}
+
+                  <button type="submit" disabled={loading} className="btn-primary w-full py-4 mt-2 flex justify-center items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-lg">
                     {loading ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Sign In <ArrowRight className="w-5 h-5" /></>}
                   </button>
                 </form>
@@ -177,7 +211,7 @@ export default function AuthPage() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Username</label>
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input type="text" required className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:border-emerald-400 focus:ring-emerald-400/20 focus:bg-white" placeholder="johndoe" />
+                      <input type="text" required value={username} onChange={e => setUsername(e.target.value)} className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:border-emerald-400 focus:ring-emerald-400/20 focus:bg-white" placeholder="johndoe" />
                     </div>
                   </div>
 
@@ -185,7 +219,7 @@ export default function AuthPage() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input type="email" className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:border-emerald-400 focus:ring-emerald-400/20 focus:bg-white" placeholder="you@example.com" />
+                      <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:border-emerald-400 focus:ring-emerald-400/20 focus:bg-white" placeholder="you@example.com" />
                     </div>
                   </div>
 
@@ -193,9 +227,11 @@ export default function AuthPage() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Password</label>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input type="password" required className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:border-emerald-400 focus:ring-emerald-400/20 focus:bg-white" placeholder="••••••••" />
+                      <input type="password" required value={password} onChange={e => setPassword(e.target.value)} className="glass-input bg-slate-50 w-full pl-12 pr-4 py-3.5 focus:border-emerald-400 focus:ring-emerald-400/20 focus:bg-white" placeholder="••••••••" />
                     </div>
                   </div>
+
+                  {error && <p className="text-sm font-medium text-rose-600 bg-rose-50 px-4 py-2 rounded-xl border border-rose-200">{error}</p>}
 
                   <button type="submit" disabled={loading} className="btn-primary w-full py-4 mt-4 flex justify-center items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-500/20 text-lg">
                     {loading ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Sign Up <ArrowRight className="w-5 h-5" /></>}
