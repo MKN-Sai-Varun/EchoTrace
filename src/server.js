@@ -29,7 +29,7 @@ app.use(helmet({
 
 // CORS middleware
 app.use(cors({
-  origin: "http://localhost:3001", // Next.js dev server port
+  origin: process.env.FRONTEND_URL || "http://localhost:3001",
   credentials: true
 }));
 
