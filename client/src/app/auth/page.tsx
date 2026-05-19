@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -34,8 +36,8 @@ export default function AuthPage() {
     setError("");
 
     const endpoint = isLogin
-      ? "http://localhost:3000/api/auth/login"
-      : "http://localhost:3000/api/auth/register";
+      ? `${API}/api/auth/login`
+      : `${API}/api/auth/register`;
 
     const body = isLogin ? { username, password } : { username, email, password };
 

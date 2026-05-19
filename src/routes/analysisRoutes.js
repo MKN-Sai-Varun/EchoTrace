@@ -10,7 +10,8 @@ import {
   getTodayMindset,
   getTodaySuggestions,
 } from "../services/analysisService.js";
-import { getAiAnalysis, getAiCategory } from "../services/aiService.js";
+import { getAiAnalysis, getAiCategory, getAiChatResponse } from "../services/aiService.js";
+import { getTodayEvents } from "../services/eventService.js";
 
 const router = express.Router();
 
@@ -62,6 +63,30 @@ router.post("/refresh", requireAuth, async (req, res) => {
     res.json(analysis);
   } catch (error) {
     console.error("Refresh analysis error:", error);
+    res.status(500).json({ error: "Failed to refresh analysis" });
+  }
+});
+
+/** GET consolidated full-day analysis and routine record */
+router.get("/full-analysis", requireAuth, async (req, res) => {
+  try {
+    const analysis = await getTodayAnalysis(req.userId);
+    const routineRecord = await getTodayRoutineRecord(req.userId);
+    res.json({ analysis, routineRecord });
+  } catch (error) {
+    console.error("Full analysis error:", error);
+    res.status(500).json({ error: "Failed to get full analysis" });
+  }
+});
+
+/** POST force-regenerate consolidated analysis and routine record */
+router.post("/full-analysis/refresh", requireAuth, async (req, res) => {
+  try {
+    const analysis = await analyzeDay(req.userId, new Date());
+    const routineRecord = await getTodayRoutineRecord(req.userId);
+    res.json({ analysis, routineRecord });
+  } catch (error) {
+    console.error("Refresh full analysis error:", error);
     res.status(500).json({ error: "Failed to refresh analysis" });
   }
 });
@@ -256,6 +281,37 @@ router.get("/profile-stats", requireAuth, async (req, res) => {
   } catch (error) {
     console.error("Profile stats error:", error);
     res.status(500).json({ error: "Failed to get profile stats" });
+  }
+});
+
+/** POST AI productivity chat response */
+router.post("/chat", requireAuth, async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ error: "message string is required" });
+    }
+
+    const events = await getTodayEvents(req.userId);
+    const analysis = await getTodayAnalysis(req.userId);
+    const routineRecord = await getTodayRoutineRecord(req.userId);
+
+    const mappedEvents = events.map(e => ({
+      time: new Date(e.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      category: e.category,
+      label: e.label
+    }));
+
+    const analysisContext = analysis ? {
+      score: analysis.productivityScore,
+      mindset: analysis.mindset,
+    } : null;
+
+    const response = await getAiChatResponse(message, mappedEvents, analysisContext, routineRecord);
+    res.json({ response });
+  } catch (error) {
+    console.error("AI chat error:", error);
+    res.status(500).json({ error: "AI agent failed: " + error.message });
   }
 });
 

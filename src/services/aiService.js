@@ -8,6 +8,8 @@
  *   Response: { choices: [{ message: { content: "..." } }] }
  */
 
+import { categoryCache, analysisCache, routineCache, suggestionsCache } from "./aiCache.js";
+
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 
 /**
@@ -83,6 +85,14 @@ function parseJsonReply(text) {
  * Returns: { score, categories, insights, recommendations, mindset, routineScore, routineFeedback }
  */
 export async function getAiAnalysis(events, userHistory = null) {
+  const cacheKey = JSON.stringify({ events, userHistory });
+  const cached = analysisCache.get(cacheKey);
+  if (cached) {
+    console.log("[aiService] Cache HIT for getAiAnalysis");
+    return cached;
+  }
+  console.log("[aiService] Cache MISS for getAiAnalysis");
+
   const now = new Date();
   const hour = now.getHours();
   const timeOfDay = hour < 12 ? "morning" : hour < 17 ? "afternoon" : hour < 21 ? "evening" : "night";
@@ -128,7 +138,9 @@ Analyze my day and return the JSON.`;
       [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
       { temperature: 0.5, maxTokens: 1200, jsonMode: true }
     );
-    return parseJsonReply(reply);
+    const parsed = parseJsonReply(reply);
+    analysisCache.set(cacheKey, parsed, 10 * 60 * 1000); // 10 minutes cache
+    return parsed;
   } catch (error) {
     console.error("[aiService] getAiAnalysis error:", error.message);
     throw error;
@@ -140,8 +152,18 @@ Analyze my day and return the JSON.`;
  * Returns: { category, color, dot }
  */
 export async function getAiCategory(eventLabel) {
+  const cacheKey = eventLabel.trim().toLowerCase();
+  const cached = categoryCache.get(cacheKey);
+  if (cached) {
+    console.log(`[aiService] Cache HIT for getAiCategory: "${eventLabel}" -> "${cached.category}"`);
+    return cached;
+  }
+  console.log(`[aiService] Cache MISS for getAiCategory: "${eventLabel}"`);
+
   if (!process.env.GROQ_API_KEY) {
-    return keywordFallback(eventLabel);
+    const fallback = keywordFallback(eventLabel);
+    categoryCache.set(cacheKey, fallback, 24 * 60 * 60 * 1000);
+    return fallback;
   }
 
   try {
@@ -158,10 +180,14 @@ Examples:
       { temperature: 0.1, maxTokens: 50, jsonMode: true }
     );
     const parsed = parseJsonReply(reply);
-    return enrichWithColors(parsed);
+    const result = enrichWithColors(parsed);
+    categoryCache.set(cacheKey, result, 24 * 60 * 60 * 1000); // 24 hours cache
+    return result;
   } catch (error) {
     console.error("[aiService] getAiCategory error, using fallback:", error.message);
-    return keywordFallback(eventLabel);
+    const fallback = keywordFallback(eventLabel);
+    categoryCache.set(cacheKey, fallback, 24 * 60 * 60 * 1000); // cache fallback too
+    return fallback;
   }
 }
 
@@ -206,6 +232,14 @@ Be empathetic, specific, and reference actual activities. Avoid generic statemen
  * Returns: { morning, afternoon, evening, night, immediate }
  */
 export async function getPersonalizedSuggestions(events, userHistory = null) {
+  const cacheKey = JSON.stringify({ events, userHistory });
+  const cached = suggestionsCache.get(cacheKey);
+  if (cached) {
+    console.log("[aiService] Cache HIT for getPersonalizedSuggestions");
+    return cached;
+  }
+  console.log("[aiService] Cache MISS for getPersonalizedSuggestions");
+
   if (!process.env.GROQ_API_KEY) {
     return defaultSuggestions();
   }
@@ -240,7 +274,9 @@ Be specific — reference their actual activities. Avoid generic advice like "dr
       [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
       { temperature: 0.7, maxTokens: 600, jsonMode: true }
     );
-    return parseJsonReply(reply);
+    const parsed = parseJsonReply(reply);
+    suggestionsCache.set(cacheKey, parsed, 10 * 60 * 1000); // 10 minutes cache
+    return parsed;
   } catch (error) {
     console.error("[aiService] getPersonalizedSuggestions error:", error.message);
     return defaultSuggestions();
@@ -252,6 +288,14 @@ Be specific — reference their actual activities. Avoid generic advice like "dr
  * Returns: { routineScore, strengths, weaknesses, improvement, consistency }
  */
 export async function scoreRoutine(events, analysisHistory = []) {
+  const cacheKey = JSON.stringify({ events, analysisHistory });
+  const cached = routineCache.get(cacheKey);
+  if (cached) {
+    console.log("[aiService] Cache HIT for scoreRoutine");
+    return cached;
+  }
+  console.log("[aiService] Cache MISS for scoreRoutine");
+
   if (!process.env.GROQ_API_KEY || events.length === 0) {
     return defaultRoutineScore();
   }
@@ -293,10 +337,62 @@ ${historyContext}`;
       [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
       { temperature: 0.4, maxTokens: 600, jsonMode: true }
     );
-    return parseJsonReply(reply);
+    const parsed = parseJsonReply(reply);
+    routineCache.set(cacheKey, parsed, 10 * 60 * 1000); // 10 minutes cache
+    return parsed;
   } catch (error) {
     console.error("[aiService] scoreRoutine error:", error.message);
     return defaultRoutineScore();
+  }
+}
+
+/**
+ * AI Productivity Chat Agent.
+ * Gives context-aware, real-time responses about user's day and questions.
+ */
+export async function getAiChatResponse(message, events = [], analysis = null, routineRecord = null) {
+  if (!process.env.GROQ_API_KEY) {
+    return "The AI Coach is currently offline. Please configure your GROQ_API_KEY.";
+  }
+
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
+
+  const eventsSummary = events.length > 0
+    ? events.map((e, i) => `${i + 1}. [${e.time || "?"}] [${e.category || "Uncategorized"}] ${e.label}`).join("\n")
+    : "No events logged today yet.";
+
+  const mindsetSummary = analysis?.mindset 
+    ? `${analysis.mindset.state} (confidence: ${analysis.mindset.confidence}%, triggers: ${analysis.mindset.triggers?.join(", ") || "none"})`
+    : "unknown";
+
+  const systemPrompt = `You are EchoTrace's personal AI Productivity Coach.
+Your goal is to guide the user in real-time, helping them stay balanced, focused, and healthy.
+Be conversational, encouraging, direct, and concise (keep replies under 3-4 sentences unless they ask for a detailed plan).
+
+Context for Today (${dayName}, current time is ${timeStr}):
+- Logged Events:
+${eventsSummary}
+- Today's Productivity Score: ${analysis?.score || "N/A"}/100
+- Today's Routine Grade: ${routineRecord?.grade || "N/A"} (score: ${routineRecord?.routineScore || "N/A"})
+- Inferred Mindset: ${mindsetSummary}
+- Strengths: ${routineRecord?.strengths?.join(", ") || "N/A"}
+- Areas to Improve: ${routineRecord?.weaknesses?.join(", ") || "N/A"}
+- Tomorrow's Focus suggestion: ${routineRecord?.improvement || "N/A"}
+- Weekly Goal: ${routineRecord?.suggestions?.weeklyGoal || "N/A"}
+
+Always ground your advice in their actual logged events. If they ask what to do right now, recommend something highly specific based on the current time and their events. Do not give generic advice. Keep your response in markdown format.`;
+
+  try {
+    const response = await callGroq([
+      { role: "system", content: systemPrompt },
+      { role: "user", content: message }
+    ], { temperature: 0.7, maxTokens: 400 });
+    return response;
+  } catch (error) {
+    console.error("[aiService] getAiChatResponse error:", error.message);
+    return "Sorry, I had trouble processing that request. Please try again in a moment.";
   }
 }
 
