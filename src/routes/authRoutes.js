@@ -25,6 +25,10 @@ function getSessionIdFromCookie(cookieHeader) {
   return match?.split("=")[1] || null;
 }
 
+const isCrossSite = process.env.NODE_ENV === "production" || (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes("localhost"));
+const COOKIE_SUFFIX = isCrossSite ? "; SameSite=None; Secure" : "; SameSite=Lax";
+
+
 // Validation rules
 const registerValidation = [
   body("username")
@@ -99,7 +103,7 @@ router.post("/register", authLimiter, registerValidation, async (req, res) => {
 
     res.setHeader(
       "Set-Cookie",
-      `sessionId=${sessionId}; HttpOnly; Path=/; SameSite=Lax`
+      `sessionId=${sessionId}; HttpOnly; Path=/${COOKIE_SUFFIX}`
     );
 
     res.json({ message: "Registered successfully" });
@@ -142,7 +146,7 @@ router.post("/login", authLimiter, loginValidation, async (req, res) => {
 
     res.setHeader(
       "Set-Cookie",
-      `sessionId=${sessionId}; HttpOnly; Path=/; SameSite=Lax`
+      `sessionId=${sessionId}; HttpOnly; Path=/${COOKIE_SUFFIX}`
     );
 
     res.json({ message: "Logged in successfully" });
@@ -163,7 +167,7 @@ router.post("/logout", async (req, res) => {
 
     res.setHeader(
       "Set-Cookie",
-      "sessionId=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax"
+      `sessionId=; HttpOnly; Path=/; Max-Age=0${COOKIE_SUFFIX}`
     );
 
     res.json({ message: "Logged out successfully" });
