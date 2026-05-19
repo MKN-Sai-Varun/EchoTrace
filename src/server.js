@@ -29,7 +29,24 @@ app.use(helmet({
 
 // CORS middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3001",
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    
+    const frontendUrl = (process.env.FRONTEND_URL || "").replace(/\/$/, "");
+    const cleanOrigin = origin.replace(/\/$/, "");
+    
+    const isAllowed = 
+      cleanOrigin === "http://localhost:3001" ||
+      cleanOrigin === "http://localhost:3000" ||
+      cleanOrigin === frontendUrl ||
+      cleanOrigin.endsWith(".vercel.app");
+      
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
   credentials: true
 }));
 
