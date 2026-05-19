@@ -41,11 +41,12 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Auth-specific rate limiting (stricter)
+// Auth-specific rate limiting — only for login and register, not /me or /logout
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10, // 10 attempts per 15 minutes
-  message: { error: "Too many login attempts, please try again later" }
+  max: 30, // 30 attempts per 15 minutes (generous for dev, still protective)
+  message: { error: "Too many login attempts, please try again later" },
+  skipSuccessfulRequests: true, // successful logins don't count against the limit
 });
 
 app.use(express.json());
@@ -64,7 +65,7 @@ mongoose.connection.on("error", (err) => {
   console.error("MongoDB error:", err.message);
 });
 
-app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authRoutes);  // /me, /logout, /preferences are unrestricted
 app.use("/api/events", eventRoutes);
 app.use("/api/analysis", analysisRoutes);
 

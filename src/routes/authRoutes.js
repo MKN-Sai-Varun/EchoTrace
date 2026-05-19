@@ -1,11 +1,20 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import rateLimit from "express-rate-limit";
 import { body, validationResult } from "express-validator";
 import User from "../models/User.js";
 import Session from "../models/Session.js";
 
 const router = express.Router();
+
+// Rate limiter applied only to login and register — not /me, /logout, /preferences
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { error: "Too many login attempts, please try again later" },
+  skipSuccessfulRequests: true,
+});
 
 // Helper function to parse cookies consistently
 function getSessionIdFromCookie(cookieHeader) {
@@ -50,7 +59,7 @@ const loginValidation = [
 ];
 
 /* REGISTER */
-router.post("/register", registerValidation, async (req, res) => {
+router.post("/register", authLimiter, registerValidation, async (req, res) => {
   try {
     // Check validation errors
     const errors = validationResult(req);
@@ -101,7 +110,7 @@ router.post("/register", registerValidation, async (req, res) => {
 });
 
 /* LOGIN */
-router.post("/login", loginValidation, async (req, res) => {
+router.post("/login", authLimiter, loginValidation, async (req, res) => {
   try {
     // Check validation errors
     const errors = validationResult(req);
