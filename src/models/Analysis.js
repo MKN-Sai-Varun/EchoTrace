@@ -52,6 +52,36 @@ const AnalysisSchema = new mongoose.Schema({
   topCategory: {
     type: String
   },
+
+  // AI-powered fields
+  mindset: {
+    state: {
+      type: String,
+      enum: ["focused", "scattered", "relaxed", "stressed", "balanced", "social", "creative", "recovering", "unknown"],
+      default: "unknown"
+    },
+    confidence: { type: Number, default: 0 },
+    description: { type: String },
+    triggers: [{ type: String }],
+    suggestion: { type: String }
+  },
+  routineScore: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 0
+  },
+  routineFeedback: { type: String },
+  timeOfDaySuggestion: { type: String },
+  personalizedTip: { type: String },
+
+  // Source flag: "ai" | "keyword"
+  analysisSource: {
+    type: String,
+    enum: ["ai", "keyword"],
+    default: "keyword"
+  },
+
   createdAt: {
     type: Date,
     default: Date.now

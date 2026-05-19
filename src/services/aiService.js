@@ -1,172 +1,321 @@
 /**
- * Service for communicating with the Hugging Face Inference API.
- * 
- * HF Inference API format:
- *   POST https://api-inference.huggingface.co/models/{model_id}
- *   Body: { "inputs": "<prompt>", "parameters": { ... } }
- *   Response: [{ "generated_text": "..." }]
+ * EchoTrace AI Service — Groq (OpenAI-compatible) backend.
+ *
+ * Groq API format:
+ *   POST https://api.groq.com/openai/v1/chat/completions
+ *   Headers: Authorization: Bearer <GROQ_API_KEY>
+ *   Body: { model, messages, temperature, max_tokens, response_format? }
+ *   Response: { choices: [{ message: { content: "..." } }] }
  */
+
+const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 
 /**
- * Builds the Phi-3 / Llama-3 style prompt from messages array.
- * Matches the <|system|>...<|end|> format used in echotrace_train.jsonl
+ * Core Groq API caller — uses OpenAI-compatible chat completions format.
  */
-function buildPrompt(messages) {
-  return messages.map(m => {
-    if (m.role === "system") return `<|system|>\n${m.content}<|end|>`;
-    if (m.role === "user")   return `<|user|>\n${m.content}<|end|>`;
-    if (m.role === "assistant") return `<|assistant|>\n${m.content}<|end|>`;
-    return m.content;
-  }).join("\n") + "\n<|assistant|>\n";
-}
+async function callGroq(messages, { temperature = 0.4, maxTokens = 1024, jsonMode = false } = {}) {
+  const apiKey = process.env.GROQ_API_KEY;
+  const modelUrl = process.env.AI_MODEL_URL || "https://api.groq.com/openai/v1/chat/completions";
 
-/**
- * Extracts only the assistant's new response from the full generated text.
- * The model may echo back the prompt, so we grab just what comes after the last <|assistant|>.
- */
-function extractAssistantReply(generatedText) {
-  const marker = "<|assistant|>";
-  const lastIdx = generatedText.lastIndexOf(marker);
-  if (lastIdx !== -1) {
-    return generatedText.slice(lastIdx + marker.length).replace(/<\|end\|>.*$/s, "").trim();
-  }
-  return generatedText.trim();
-}
-
-async function callAiModel(messages) {
-  const modelUrl = process.env.AI_MODEL_URL;
-
-  if (!modelUrl) {
-    throw new Error("AI_MODEL_URL is not configured in the environment.");
-  }
-
-  const headers = {
-    "Content-Type": "application/json"
-  };
-
-  if (process.env.AI_API_KEY) {
-    headers["Authorization"] = `Bearer ${process.env.AI_API_KEY}`;
-  }
-
-  const prompt = buildPrompt(messages);
+  if (!apiKey) throw new Error("GROQ_API_KEY is not set in environment.");
 
   const body = {
-    inputs: prompt,
-    parameters: {
-      max_new_tokens: 512,
-      temperature: 0.3,        // Low temperature for consistent JSON output
-      return_full_text: true,  // HF returns the prompt + generation
-      do_sample: true,
-      stop: ["<|end|>", "<|user|>"] // Stop before a new turn begins
-    }
+    model: GROQ_MODEL,
+    messages,
+    temperature,
+    max_tokens: maxTokens,
   };
 
-  console.log("[aiService] Calling HF API:", modelUrl);
+  // Request JSON output when we need structured data
+  if (jsonMode) {
+    body.response_format = { type: "json_object" };
+  }
+
+  console.log(`[aiService] Calling Groq (${GROQ_MODEL}), jsonMode=${jsonMode}`);
 
   const response = await fetch(modelUrl, {
     method: "POST",
-    headers,
-    body: JSON.stringify(body)
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`HF API Error (${response.status}): ${errorText}`);
+    throw new Error(`Groq API Error (${response.status}): ${errorText}`);
   }
 
-  // HF returns: [{ "generated_text": "..." }]
   const data = await response.json();
-  console.log("[aiService] Raw HF response:", JSON.stringify(data).slice(0, 300));
+  const content = data?.choices?.[0]?.message?.content;
 
-  let rawText = "";
-  if (Array.isArray(data) && data[0]?.generated_text) {
-    rawText = data[0].generated_text;
-  } else if (data.generated_text) {
-    rawText = data.generated_text;
-  } else {
-    throw new Error("Unexpected HF response format: " + JSON.stringify(data));
-  }
+  if (!content) throw new Error("Empty response from Groq: " + JSON.stringify(data));
 
-  const replyText = extractAssistantReply(rawText);
-  console.log("[aiService] Extracted reply:", replyText.slice(0, 200));
-
-  return replyText;
+  console.log("[aiService] Groq reply (first 200 chars):", content.slice(0, 200));
+  return content;
 }
 
 /**
- * Parses the extracted text into JSON, with fallback for trailing garbage.
+ * Safely parse JSON from model output — handles markdown code fences and trailing text.
  */
 function parseJsonReply(text) {
-  // Try direct parse first
+  // Strip markdown code fences if present
+  const stripped = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
   try {
-    return JSON.parse(text);
+    return JSON.parse(stripped);
   } catch {
-    // Try to extract a JSON block from the text
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+    // Try to extract the first {...} block
+    const match = stripped.match(/\{[\s\S]*\}/);
+    if (match) {
+      try { return JSON.parse(match[0]); } catch { /* fall through */ }
     }
-    throw new Error("Could not extract JSON from model reply: " + text.slice(0, 100));
+    throw new Error("Could not parse JSON from model reply: " + text.slice(0, 150));
   }
 }
 
-export async function getAiAnalysis(events) {
-  const messages = [
-    {
-      role: "system",
-      content: "You are the EchoTrace AI assistant. Your role is to analyze the user's daily activities, provide productivity scores (0-100), and chat with the user about their habits. Return strict JSON when asked to 'Analyze my day'."
-    },
-    {
-      role: "user",
-      content: `Analyze my day: ${JSON.stringify(events)}`
-    }
-  ];
+// ─────────────────────────────────────────────────────────────────────────────
+// PUBLIC API
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const replyText = await callAiModel(messages);
-  return parseJsonReply(replyText);
+/**
+ * Full-day AI analysis.
+ * Returns: { score, categories, insights, recommendations, mindset, routineScore, routineFeedback }
+ */
+export async function getAiAnalysis(events, userHistory = null) {
+  const now = new Date();
+  const hour = now.getHours();
+  const timeOfDay = hour < 12 ? "morning" : hour < 17 ? "afternoon" : hour < 21 ? "evening" : "night";
+  const dayOfWeek = now.toLocaleDateString("en-US", { weekday: "long" });
+
+  const historyContext = userHistory
+    ? `\nUser's recent history (last 7 days avg score: ${userHistory.avgScore}, top category: ${userHistory.topCategory}):`
+    : "";
+
+  const systemPrompt = `You are EchoTrace's personal AI coach. Analyze the user's logged activities and return a JSON object with these exact keys:
+
+{
+  "score": <integer 0-100, productivity score>,
+  "categories": [{ "name": "<category>", "percent": <integer> }],
+  "insights": ["<insight 1>", "<insight 2>", "<insight 3>"],
+  "recommendations": ["<rec 1>", "<rec 2>", "<rec 3>"],
+  "mindset": {
+    "state": "<one of: focused, scattered, relaxed, stressed, balanced, social, creative, recovering>",
+    "confidence": <integer 0-100>,
+    "description": "<1-2 sentence description of inferred mental/emotional state>",
+    "triggers": ["<what seems to be driving this mindset>"]
+  },
+  "routineScore": <integer 0-100, how consistent/healthy the routine pattern is>,
+  "routineFeedback": "<1-2 sentences on the routine quality and what to improve>",
+  "timeOfDaySuggestion": "<specific suggestion for what to do in the current ${timeOfDay} based on their day so far>",
+  "personalizedTip": "<one highly specific, actionable tip based on their exact activity pattern today>"
 }
 
+Scoring guide:
+- Productivity score: weight work/learning/health highly, entertainment/uncategorized lower
+- Routine score: reward consistent patterns (morning health, focused work blocks, social time), penalise erratic or unbalanced days
+- Mindset: infer from activity types, timing, and sequence — e.g. back-to-back meetings = stressed, morning workout + deep work = focused
+- Be specific and personal — reference actual activities the user logged, not generic advice
+- Today is ${dayOfWeek}, current time is ${timeOfDay}.${historyContext}`;
+
+  const userPrompt = `Here are my activities today (${events.length} total):
+${events.map((e, i) => `${i + 1}. [${e.time || "?"}] ${e.label}`).join("\n")}
+
+Analyze my day and return the JSON.`;
+
+  try {
+    const reply = await callGroq(
+      [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      { temperature: 0.5, maxTokens: 1200, jsonMode: true }
+    );
+    return parseJsonReply(reply);
+  } catch (error) {
+    console.error("[aiService] getAiAnalysis error:", error.message);
+    throw error;
+  }
+}
+
+/**
+ * Categorize a single event label.
+ * Returns: { category, color, dot }
+ */
 export async function getAiCategory(eventLabel) {
-  // If AI is not configured, fall back to keyword matching immediately
-  if (!process.env.AI_MODEL_URL) {
+  if (!process.env.GROQ_API_KEY) {
     return keywordFallback(eventLabel);
   }
 
   try {
-    const messages = [
-      {
-        role: "system",
-        content: "You categorize single events into: Work, Health, Food, Learning, Social, Entertainment, Personal, or Uncategorized. Return strict JSON."
-      },
-      {
-        role: "user",
-        content: `Categorize: '${eventLabel}'`
-      }
-    ];
+    const systemPrompt = `You are an activity categorizer. Given an activity description, return a JSON object with a single key "category" whose value is exactly one of: Work, Health, Food, Learning, Social, Entertainment, Personal, Creative, Recovery, Uncategorized.
 
-    const replyText = await callAiModel(messages);
-    const parsed = parseJsonReply(replyText);
+Examples:
+- "morning run" → {"category": "Health"}
+- "team standup" → {"category": "Work"}
+- "read book" → {"category": "Learning"}
+- "lunch with friend" → {"category": "Social"}`;
 
-    // Ensure color/dot are present (model may only return category)
+    const reply = await callGroq(
+      [{ role: "system", content: systemPrompt }, { role: "user", content: `Categorize: "${eventLabel}"` }],
+      { temperature: 0.1, maxTokens: 50, jsonMode: true }
+    );
+    const parsed = parseJsonReply(reply);
     return enrichWithColors(parsed);
   } catch (error) {
-    console.error("[aiService] Category error, using fallback:", error.message);
+    console.error("[aiService] getAiCategory error, using fallback:", error.message);
     return keywordFallback(eventLabel);
   }
 }
+
+/**
+ * Infer mindset from a list of events.
+ * Returns: { state, confidence, description, triggers }
+ */
+export async function getMindsetAnalysis(events) {
+  if (!process.env.GROQ_API_KEY || events.length === 0) {
+    return defaultMindset();
+  }
+
+  try {
+    const systemPrompt = `You are a behavioral psychologist AI. Based on a user's logged activities, infer their current mental and emotional state.
+
+Return a JSON object:
+{
+  "state": "<one of: focused, scattered, relaxed, stressed, balanced, social, creative, recovering>",
+  "confidence": <integer 0-100>,
+  "description": "<2-3 sentences describing the inferred mindset and what's driving it>",
+  "triggers": ["<activity or pattern that signals this mindset>"],
+  "suggestion": "<one specific action to either maintain or improve this mindset right now>"
+}
+
+Be empathetic, specific, and reference actual activities. Avoid generic statements.`;
+
+    const userPrompt = `My activities today:\n${events.map((e, i) => `${i + 1}. ${e.label}`).join("\n")}\n\nWhat is my current mindset?`;
+
+    const reply = await callGroq(
+      [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      { temperature: 0.6, maxTokens: 400, jsonMode: true }
+    );
+    return parseJsonReply(reply);
+  } catch (error) {
+    console.error("[aiService] getMindsetAnalysis error:", error.message);
+    return defaultMindset();
+  }
+}
+
+/**
+ * Generate personalized suggestions for any part of the day.
+ * Returns: { morning, afternoon, evening, night, immediate }
+ */
+export async function getPersonalizedSuggestions(events, userHistory = null) {
+  if (!process.env.GROQ_API_KEY) {
+    return defaultSuggestions();
+  }
+
+  const now = new Date();
+  const hour = now.getHours();
+  const timeOfDay = hour < 12 ? "morning" : hour < 17 ? "afternoon" : hour < 21 ? "evening" : "night";
+
+  const historyNote = userHistory
+    ? `The user's historical patterns: avg score ${userHistory.avgScore}/100, most active in ${userHistory.topCategory}.`
+    : "";
+
+  try {
+    const systemPrompt = `You are EchoTrace's personal routine coach. Based on the user's activities today and their patterns, generate highly personalized, actionable suggestions for each part of the day.
+
+Return a JSON object:
+{
+  "immediate": "<what to do RIGHT NOW in the current ${timeOfDay}, based on today's activities>",
+  "morning": "<specific morning routine suggestion based on their patterns>",
+  "afternoon": "<specific afternoon suggestion>",
+  "evening": "<specific evening wind-down suggestion>",
+  "night": "<specific night routine suggestion>",
+  "weeklyGoal": "<one habit to build this week based on what's missing from their routine>"
+}
+
+${historyNote}
+Be specific — reference their actual activities. Avoid generic advice like "drink water" unless it's genuinely relevant.`;
+
+    const userPrompt = `Today's activities (${events.length} logged, current time: ${timeOfDay}):\n${events.map((e, i) => `${i + 1}. ${e.label}`).join("\n")}\n\nGive me personalized suggestions for my day.`;
+
+    const reply = await callGroq(
+      [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      { temperature: 0.7, maxTokens: 600, jsonMode: true }
+    );
+    return parseJsonReply(reply);
+  } catch (error) {
+    console.error("[aiService] getPersonalizedSuggestions error:", error.message);
+    return defaultSuggestions();
+  }
+}
+
+/**
+ * Score and record a daily routine.
+ * Returns: { routineScore, strengths, weaknesses, improvement, consistency }
+ */
+export async function scoreRoutine(events, analysisHistory = []) {
+  if (!process.env.GROQ_API_KEY || events.length === 0) {
+    return defaultRoutineScore();
+  }
+
+  const historyContext = analysisHistory.length > 0
+    ? `\nPast ${analysisHistory.length} days scores: ${analysisHistory.map(h => h.productivityScore || 0).join(", ")}`
+    : "";
+
+  try {
+    const systemPrompt = `You are a routine optimization expert. Evaluate the quality of a user's daily routine based on their logged activities.
+
+Return a JSON object:
+{
+  "routineScore": <integer 0-100>,
+  "grade": "<A/B/C/D/F>",
+  "strengths": ["<what they did well today>"],
+  "weaknesses": ["<what was missing or imbalanced>"],
+  "improvement": "<the single most impactful change they could make tomorrow>",
+  "consistency": "<comment on how today compares to their recent history>",
+  "balanceBreakdown": {
+    "physical": <0-100>,
+    "mental": <0-100>,
+    "social": <0-100>,
+    "recovery": <0-100>
+  }
+}
+
+Scoring criteria:
+- Physical health activities (exercise, walks): up to 25 points
+- Mental/cognitive activities (work, learning, creative): up to 30 points  
+- Social connection: up to 15 points
+- Recovery/self-care (sleep, meals, personal): up to 15 points
+- Variety and balance bonus: up to 15 points
+${historyContext}`;
+
+    const userPrompt = `Today's activities:\n${events.map((e, i) => `${i + 1}. [${e.category || "?"}] ${e.label}`).join("\n")}\n\nScore my routine.`;
+
+    const reply = await callGroq(
+      [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      { temperature: 0.4, maxTokens: 600, jsonMode: true }
+    );
+    return parseJsonReply(reply);
+  } catch (error) {
+    console.error("[aiService] scoreRoutine error:", error.message);
+    return defaultRoutineScore();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
 
 function enrichWithColors(parsed) {
   const colorMap = {
-    Work:          { color: "bg-blue-100 text-blue-600",     dot: "bg-blue-500" },
+    Work:          { color: "bg-blue-100 text-blue-600",       dot: "bg-blue-500" },
     Health:        { color: "bg-emerald-100 text-emerald-600", dot: "bg-emerald-500" },
-    Social:        { color: "bg-orange-100 text-orange-600",  dot: "bg-orange-500" },
-    Learning:      { color: "bg-purple-100 text-purple-600",  dot: "bg-purple-500" },
-    Food:          { color: "bg-yellow-100 text-yellow-700",  dot: "bg-yellow-500" },
-    Entertainment: { color: "bg-pink-100 text-pink-600",      dot: "bg-pink-500" },
-    Personal:      { color: "bg-cyan-100 text-cyan-700",      dot: "bg-cyan-500" },
-    Recovery:      { color: "bg-teal-100 text-teal-700",      dot: "bg-teal-500" },
-    Creative:      { color: "bg-violet-100 text-violet-600",  dot: "bg-violet-500" },
-    Uncategorized: { color: "bg-slate-100 text-slate-600",    dot: "bg-slate-500" },
+    Social:        { color: "bg-orange-100 text-orange-600",   dot: "bg-orange-500" },
+    Learning:      { color: "bg-purple-100 text-purple-600",   dot: "bg-purple-500" },
+    Food:          { color: "bg-yellow-100 text-yellow-700",   dot: "bg-yellow-500" },
+    Entertainment: { color: "bg-pink-100 text-pink-600",       dot: "bg-pink-500" },
+    Personal:      { color: "bg-cyan-100 text-cyan-700",       dot: "bg-cyan-500" },
+    Recovery:      { color: "bg-teal-100 text-teal-700",       dot: "bg-teal-500" },
+    Creative:      { color: "bg-violet-100 text-violet-600",   dot: "bg-violet-500" },
+    Uncategorized: { color: "bg-slate-100 text-slate-600",     dot: "bg-slate-500" },
   };
   const cat = parsed.category || "Uncategorized";
   const defaults = colorMap[cat] || colorMap.Uncategorized;
@@ -174,12 +323,57 @@ function enrichWithColors(parsed) {
 }
 
 function keywordFallback(label) {
-  const lowerInput = label.toLowerCase();
-  if (/(work|meeting|email|project|cod|call|zoom|sync|review|task)/i.test(lowerInput))
-    return { category: "Work", color: "bg-blue-100 text-blue-600", dot: "bg-blue-500" };
-  if (/(run|walk|gym|exercise|workout|sleep|lunch|dinner|breakfast|health|meditat)/i.test(lowerInput))
-    return { category: "Health", color: "bg-emerald-100 text-emerald-600", dot: "bg-emerald-500" };
-  if (/(friend|chat|hangout|party|family|social|date)/i.test(lowerInput))
-    return { category: "Social", color: "bg-orange-100 text-orange-600", dot: "bg-orange-500" };
-  return { category: "Uncategorized", color: "bg-slate-100 text-slate-600", dot: "bg-slate-500" };
+  const l = label.toLowerCase();
+  if (/(work|meeting|email|project|cod|call|zoom|sync|review|task|deploy|debug)/i.test(l))
+    return { category: "Work",          color: "bg-blue-100 text-blue-600",       dot: "bg-blue-500" };
+  if (/(run|walk|gym|exercise|workout|yoga|meditat|stretch|sport)/i.test(l))
+    return { category: "Health",        color: "bg-emerald-100 text-emerald-600", dot: "bg-emerald-500" };
+  if (/(breakfast|lunch|dinner|snack|coffee|tea|eat|cook|meal|food)/i.test(l))
+    return { category: "Food",          color: "bg-yellow-100 text-yellow-700",   dot: "bg-yellow-500" };
+  if (/(read|study|course|tutorial|learn|book|article|podcast|research)/i.test(l))
+    return { category: "Learning",      color: "bg-purple-100 text-purple-600",   dot: "bg-purple-500" };
+  if (/(friend|chat|hangout|party|family|social|date|visit|meet)/i.test(l))
+    return { category: "Social",        color: "bg-orange-100 text-orange-600",   dot: "bg-orange-500" };
+  if (/(movie|show|game|gaming|music|youtube|netflix|scroll|browse)/i.test(l))
+    return { category: "Entertainment", color: "bg-pink-100 text-pink-600",       dot: "bg-pink-500" };
+  if (/(write|draw|design|create|build|art|photo|edit|brainstorm)/i.test(l))
+    return { category: "Creative",      color: "bg-violet-100 text-violet-600",   dot: "bg-violet-500" };
+  if (/(sleep|nap|rest|recover|relax)/i.test(l))
+    return { category: "Recovery",      color: "bg-teal-100 text-teal-700",       dot: "bg-teal-500" };
+  if (/(shower|clean|laundry|errands|shopping|commute)/i.test(l))
+    return { category: "Personal",      color: "bg-cyan-100 text-cyan-700",       dot: "bg-cyan-500" };
+  return { category: "Uncategorized",   color: "bg-slate-100 text-slate-600",     dot: "bg-slate-500" };
+}
+
+function defaultMindset() {
+  return {
+    state: "balanced",
+    confidence: 50,
+    description: "Not enough data to infer mindset. Log more activities throughout the day.",
+    triggers: [],
+    suggestion: "Keep logging your activities to get personalized mindset insights.",
+  };
+}
+
+function defaultSuggestions() {
+  return {
+    immediate: "Log your current activity to get personalized suggestions.",
+    morning: "Start with a short exercise or meditation session.",
+    afternoon: "Schedule your most important task during peak focus hours (1–3 PM).",
+    evening: "Wind down with light reading or a walk.",
+    night: "Avoid screens 30 minutes before bed for better sleep.",
+    weeklyGoal: "Build a consistent morning routine.",
+  };
+}
+
+function defaultRoutineScore() {
+  return {
+    routineScore: 0,
+    grade: "N/A",
+    strengths: [],
+    weaknesses: ["No activities logged yet"],
+    improvement: "Start logging your daily activities to get a routine score.",
+    consistency: "No history available.",
+    balanceBreakdown: { physical: 0, mental: 0, social: 0, recovery: 0 },
+  };
 }

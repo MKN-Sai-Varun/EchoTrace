@@ -168,24 +168,22 @@ router.post("/logout", async (req, res) => {
 router.get("/me", async (req, res) => {
   try {
     const sessionId = getSessionIdFromCookie(req.headers.cookie);
-    if (!sessionId) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
+    if (!sessionId) return res.status(401).json({ error: "Not authenticated" });
 
     const session = await Session.findOne({ sessionId });
-    if (!session) {
-      return res.status(401).json({ error: "Session expired" });
-    }
+    if (!session) return res.status(401).json({ error: "Session expired" });
 
-    const user = await User.findById(session.userId).select("username email firstName lastName theme createdAt");
-    if (!user) {
-      return res.status(401).json({ error: "User not found" });
-    }
+    const user = await User.findById(session.userId)
+      .select("username email firstName lastName theme createdAt");
+    if (!user) return res.status(401).json({ error: "User not found" });
 
     res.json({
-      username: user.username,
-      theme: user.theme || "midnight",
-      createdAt: user.createdAt
+      username:  user.username,
+      email:     user.email    || null,
+      firstName: user.firstName || null,
+      lastName:  user.lastName  || null,
+      theme:     user.theme    || "midnight",
+      createdAt: user.createdAt,
     });
   } catch (error) {
     console.error("Get user error:", error);
