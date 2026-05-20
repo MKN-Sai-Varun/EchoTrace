@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import CustomCursor from "@/components/CustomCursor";
 
@@ -28,6 +29,7 @@ export default function RootLayout({
         <div className="relative z-10 min-h-screen flex flex-col">
           {children}
         </div>
+        <Analytics />
       </body>
     </html>
   );
