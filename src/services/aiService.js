@@ -9,6 +9,7 @@
  */
 
 import { categoryCache, analysisCache, routineCache, suggestionsCache } from "./aiCache.js";
+import { cleanChatText } from "../utils/cleanChatText.js";
 
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 
@@ -382,14 +383,16 @@ ${eventsSummary}
 - Tomorrow's Focus suggestion: ${routineRecord?.improvement || "N/A"}
 - Weekly Goal: ${routineRecord?.suggestions?.weeklyGoal || "N/A"}
 
-Always ground your advice in their actual logged events. If they ask what to do right now, recommend something highly specific based on the current time and their events. Do not give generic advice. Keep your response in markdown format.`;
+Always ground your advice in their actual logged events. If they ask what to do right now, recommend something highly specific based on the current time and their events. Do not give generic advice.
+
+Reply in plain text only: no markdown, no asterisks, no hashtags, no code blocks, no HTML. Use short paragraphs or lines starting with "• " for lists.`;
 
   try {
     const response = await callGroq([
       { role: "system", content: systemPrompt },
       { role: "user", content: message }
     ], { temperature: 0.7, maxTokens: 400 });
-    return response;
+    return cleanChatText(response);
   } catch (error) {
     console.error("[aiService] getAiChatResponse error:", error.message);
     return "Sorry, I had trouble processing that request. Please try again in a moment.";

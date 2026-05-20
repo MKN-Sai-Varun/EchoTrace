@@ -12,6 +12,7 @@ import {
   Brain,
   Coffee,
 } from "lucide-react";
+import { cleanChatText } from "@/lib/cleanChatText";
 
 type Message = {
   id: string;
@@ -76,7 +77,7 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
         const agentMsg: Message = {
           id: (Date.now() + 1).toString(),
           sender: "agent",
-          text: data.response || "I couldn't process that response.",
+          text: cleanChatText(data.response) || "I couldn't process that response.",
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, agentMsg]);
@@ -158,7 +159,7 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
                         : "bg-white text-slate-700 border border-slate-200/60 rounded-tl-none shadow-sm"
                     }`}
                   >
-                    {msg.text}
+                    <span className="whitespace-pre-wrap break-words">{msg.text}</span>
                   </div>
                 </div>
               ))}
