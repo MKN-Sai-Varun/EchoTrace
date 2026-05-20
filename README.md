@@ -1,202 +1,400 @@
-# 📘 EchoTrace  
-### Event-Based Personal Timeline Reconstruction System
+# EchoTrace
+
+> **AI-powered event timeline and routine intelligence platform**
+>
+> Log micro-events throughout your day, reconstruct your real timeline, and get AI-powered productivity insights — powered by [Groq](https://groq.com).
+
+<div align="center">
+  <a href="https://echo-trace-gamma.vercel.app/">
+    <img src="https://img.shields.io/badge/Live%20Demo-Visit%20Now-black?style=for-the-badge&logo=vercel" alt="Live Demo" />
+  </a>
+  &nbsp;
+  <a href="https://echotrace-4iac.onrender.com">
+    <img src="https://img.shields.io/badge/API-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="API" />
+  </a>
+  &nbsp;
+  <a href="https://github.com/MKN-Sai-Varun/EchoTrace/issues">
+    <img src="https://img.shields.io/badge/Report%20Bug-GitHub-red?style=for-the-badge&logo=github" alt="Report Bug" />
+  </a>
+</div>
 
 ---
 
-## 🧩 Introduction
-
-EchoTrace is a **day-to-day personal timeline system** that helps users understand **how their day actually unfolded**, rather than how it was planned. Instead of managing tasks or goals, EchoTrace focuses on **logging small, timestamped micro-events** and reconstructing them into a meaningful daily timeline.
-
-Modern productivity tools emphasize planning, reminders, and habits. However, people often lose track of **context switches**, **idle gaps**, and **small distractions** that accumulate throughout the day. EchoTrace addresses this gap by acting as a lightweight **event stream for personal activity**, enabling reflection, awareness, and future insight.
-
-The system is intentionally designed to start **simple and synchronous**, while remaining **architecturally ready** for background processing, analytics, and rich frontend upgrades in later phases.
-
----
-
-## 🎯 Problem Statement
-
-People frequently struggle to answer questions like:
-- *Where did my time actually go today?*
-- *Why did I feel busy but not productive?*
-- *How often do I switch contexts during the day?*
-
-Most tools focus on **what should be done**, not **what actually happened**. EchoTrace fills this gap by capturing reality through micro-events and reconstructing daily timelines that highlight gaps, switches, and patterns.
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=nextdotjs)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4-000000?style=flat-square&logo=express)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat-square&logo=mongodb&logoColor=white)
+![Groq](https://img.shields.io/badge/AI-Groq-F55036?style=flat-square)
+![Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?style=flat-square&logo=vercel)
+![Render](https://img.shields.io/badge/API-Render-46E3B7?style=flat-square&logo=render&logoColor=black)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
 ---
 
-## 💡 Solution Overview
+## Introduction
 
-EchoTrace allows users to:
-- Log short, frictionless micro-events throughout the day
-- Automatically timestamp and store events
-- View a reconstructed daily timeline
-- Identify inactivity gaps and frequent context switches
+EchoTrace helps you understand **how your day actually unfolded** — not just what you planned.
 
-Rather than enforcing structure, EchoTrace passively records activity and derives insight later.
+Modern productivity tools focus on tasks and habits. EchoTrace focuses on **reality**: you log short, timestamped micro-events; the system builds a daily timeline, scores your routine, infers mindset patterns, and surfaces personalized recommendations.
+
+Context switches, productivity gaps, energy dips — EchoTrace captures all of it.
 
 ---
 
-## 🏗️ High-Level Architecture (Phase-0)
+## Screenshots
 
-# 📘 EchoTrace  
-### Event-Based Personal Timeline Reconstruction System
+### Landing Page
+<img width="100%" src="./docs/landing.png" alt="EchoTrace Landing" />
 
----
+### DashBoard & Timeline
+<img width="100%" src="./docs/dashboard.png" alt="User Dashboard" />
 
-## 🧩 Introduction
+### AI Analysis
+<img width="100%" src="./docs/aiAnalysis.png" alt="AI Analysis Tab" />
 
-EchoTrace is a **day-to-day personal timeline system** that helps users understand **how their day actually unfolded**, rather than how it was planned. Instead of managing tasks or goals, EchoTrace focuses on **logging small, timestamped micro-events** and reconstructing them into a meaningful daily timeline.
-
-Modern productivity tools emphasize planning, reminders, and habits. However, people often lose track of **context switches**, **idle gaps**, and **small distractions** that accumulate throughout the day. EchoTrace addresses this gap by acting as a lightweight **event stream for personal activity**, enabling reflection, awareness, and future insight.
-
-The system is intentionally designed to start **simple and synchronous**, while remaining **architecturally ready** for background processing, analytics, and rich frontend upgrades in later phases.
-
----
-
-## 🎯 Problem Statement
-
-People frequently struggle to answer questions like:
-- *Where did my time actually go today?*
-- *Why did I feel busy but not productive?*
-- *How often do I switch contexts during the day?*
-
-Most tools focus on **what should be done**, not **what actually happened**. EchoTrace fills this gap by capturing reality through micro-events and reconstructing daily timelines that highlight gaps, switches, and patterns.
+### Profile Page
+<img width="100%" src="./docs/profile.png" alt="Profile Page" />
 
 ---
 
-## 💡 Solution Overview
+## Features
 
-EchoTrace allows users to:
-- Log short, frictionless micro-events throughout the day
-- Automatically timestamp and store events
-- View a reconstructed daily timeline
-- Identify inactivity gaps and frequent context switches
+### 🗂 Core Timeline
+- Frictionless event logging with automatic timestamps
+- Chronological daily timeline reconstruction
+- Per-event delete with user-scoped access
+- Optional categories with keyword + AI-assisted classification
+- Responsive event visualization across all devices
 
-Rather than enforcing structure, EchoTrace passively records activity and derives insight later.
+### 🤖 AI Routine Intelligence (Groq)
+- Productivity scoring and behavioral analysis
+- Daily category breakdowns and activity summaries
+- Mindset inference with personalized recommendations
+- Routine strengths and weakness detection
+- Floating **AI Coach** chat assistant on the dashboard
+- Keyword-based fallback when `GROQ_API_KEY` is not configured
 
----
+### 👤 Account & User Experience
+- Register/sign in with username (email optional)
+- Secure HttpOnly cookie-based sessions
+- Sliding auth panels on desktop; tab switcher on mobile
+- Auth forms stay **light-themed** for readability in dark mode
+- Light / dark theme toggle
+- Animated custom cursor on desktop (disabled on touch devices)
+- Responsive UI for mobile, tablet, and desktop
+- Glassmorphism UI with smooth Framer Motion animations
 
-## 🏗️ High-Level Architecture (Phase-0)
-
-Browser (HTML + JavaScript)  
-↓  
-Node.js REST API  
-↓  
-MongoDB
-
-
-The system follows a **clean separation of concerns**, allowing future enhancements (background jobs, analytics, React UI) without refactoring core logic.
-
----
-
-## ✅ Functional Requirements (FR)
-
-### FR-1: Event Logging
-The system shall allow users to log micro-events with minimal effort.  
-Each event includes:
-- a short label (description)
-- an optional category
-- an automatically assigned timestamp
-
----
-
-### FR-2: Automatic Timestamping
-The system shall automatically record the timestamp of each event at the time of submission.
+### ⚙️ Engineering Highlights
+- Layered backend architecture: routes → services → models
+- AI response caching to reduce inference cost and latency
+- Production-ready frontend/backend deployment separation
+- Modular AI analysis service integration with Groq
+- Optimized API structure for extensibility and observability
 
 ---
 
-### FR-3: Daily Timeline View
-The system shall allow users to view a chronological timeline of events for a selected day.  
-Events must be ordered strictly by timestamp.
+## Architecture
+
+```
+┌─────────────────────────────────────┐
+│     Next.js Client (Vercel)         │
+│  /  /auth  /dashboard  /profile     │
+└──────────────┬──────────────────────┘
+               │
+               │ HTTPS + HttpOnly Cookies
+               ▼
+┌─────────────────────────────────────┐
+│     Express API (Render)            │
+│ /api/auth /api/events /api/analysis │
+└──────────────┬──────────────────────┘
+               │
+       ┌───────┴────────┐
+       ▼                ▼
+ MongoDB Atlas      Groq API
+   (Mongoose)   (llama-3.1-8b-instant)
+```
 
 ---
 
-### FR-4: Inactivity Gap Detection
-The system shall detect inactivity gaps between consecutive events when the gap duration exceeds a configurable threshold (e.g., 30 minutes).
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS 4 |
+| Backend | Node.js, Express |
+| Database | MongoDB Atlas + Mongoose |
+| AI | Groq OpenAI-compatible chat completions |
+| Authentication | bcrypt + HttpOnly session cookies |
+| Security | Helmet, CORS, express-rate-limit, express-validator |
+| Animation | Framer Motion |
+| Deployment | Vercel (frontend) + Render (API) |
 
 ---
 
-### FR-5: Event Categorization
-The system shall support optional categorization of events (e.g., Work, Personal, Distraction).
+## Project Structure
+
+```
+EchoTrace/
+├── client/                 # Next.js frontend (deploy to Vercel)
+│   └── src/
+│       ├── app/            # Pages: /, /auth, /dashboard, /profile
+│       └── components/     # Shared UI and feature components
+│
+├── src/                    # Express backend API (deploy to Render)
+│   ├── models/             # MongoDB schemas: User, Session, Event, Analysis
+│   ├── routes/             # auth, events, analysis
+│   ├── services/           # AI, events, analysis, caching
+│   └── middleware/         # Authentication and validation
+│
+├── public/                 # Legacy static HTML/JS prototype (Phase-0)
+└── package.json            # Backend dependencies
+```
 
 ---
 
-### FR-6: Event Retrieval by Date
-The system shall allow users to retrieve and view events for a specific calendar date.
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- MongoDB Atlas connection string
+- Groq API key *(optional — enables AI features)*
+
+### 1. Backend Setup (API)
+
+From the repository root:
+
+```bash
+npm install
+```
+
+Create a `.env` file in the root:
+
+```env
+PORT=3000
+MONGO_URI=mongodb+srv://YOUR_MONGO_URI
+GROQ_API_KEY=gsk_your_key_here
+GROQ_MODEL=llama-3.1-8b-instant
+FRONTEND_URL=http://localhost:3001
+```
+
+```bash
+npm run dev
+```
+
+API runs at `http://localhost:3000`
 
 ---
 
-### FR-7: Timeline Consistency
-The system shall maintain a consistent timeline even if events are added out of order by insertion time.
+### 2. Frontend Setup (Client)
+
+```bash
+cd client
+npm install
+```
+
+Create `client/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
+
+```bash
+npm run dev
+```
+
+App runs at `http://localhost:3001`
 
 ---
 
-## ⚙️ Non-Functional Requirements (NFR)
+## Environment Variables
 
-### NFR-1: Low Interaction Friction
-Event logging should take no more than a few seconds and require minimal user input.
-
----
-
-### NFR-2: Reliability
-Once an event is successfully logged, the system shall not lose or alter it.
-
----
-
-### NFR-3: Data Integrity
-Event timestamps must remain immutable after creation to preserve accurate timeline reconstruction.
+| Variable | Description |
+|---|---|
+| `MONGO_URI` | MongoDB Atlas connection string |
+| `GROQ_API_KEY` | Groq API key for AI analysis |
+| `GROQ_MODEL` | Groq model identifier |
+| `FRONTEND_URL` | Frontend origin for CORS |
+| `NEXT_PUBLIC_API_URL` | Backend API URL for the frontend |
+| `PORT` | Backend server port |
 
 ---
 
-### NFR-4: Scalability (Design-Level)
-The system shall be designed so that event analysis and timeline reconstruction can be moved to background processing in future phases without changing APIs.
+## Deployment
+
+| Service | Host | Root Directory |
+|---|---|---|
+| Frontend | [Vercel](https://vercel.com) | `client/` |
+| Backend | [Render](https://render.com) | Repository root |
+
+**Vercel:** Set `NEXT_PUBLIC_API_URL` to your Render API URL.
+
+**Render:** Set `MONGO_URI`, `PORT`, `GROQ_API_KEY`, `FRONTEND_URL`, and `NODE_ENV=production`.
+
+> `NODE_ENV=production` ensures session cookies use `SameSite=None; Secure` for cross-origin authentication between Vercel and Render.
 
 ---
 
-### NFR-5: Performance
-Retrieval of daily timelines should be optimized for recent data and complete within acceptable latency for daily use.
+## API Overview
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Create account |
+| `POST` | `/api/auth/login` | Login using username or email |
+| `POST` | `/api/auth/logout` | Logout current session |
+| `GET` | `/api/auth/me` | Get authenticated user |
+| `POST` | `/api/events` | Log a new event |
+| `GET` | `/api/events/today` | Retrieve today's events |
+| `DELETE` | `/api/events/:id` | Delete a user-owned event |
+| `GET` | `/api/analysis/full-analysis` | Retrieve AI analysis |
+| `POST` | `/api/analysis/full-analysis/refresh` | Regenerate analysis |
+| `GET` | `/api/analysis/profile-stats` | Retrieve profile statistics |
+
+All protected routes require the `sessionId` HttpOnly cookie from login/register.
+
+### Example: Create Event
+
+**Request**
+```http
+POST /api/events
+Content-Type: application/json
+
+{
+  "label": "Worked on EchoTrace backend",
+  "category": "Work"
+}
+```
+
+**Response**
+```json
+{
+  "success": true,
+  "event": {
+    "_id": "682c123456",
+    "label": "Worked on EchoTrace backend",
+    "category": "Work",
+    "timestamp": "2026-05-20T08:45:12.000Z"
+  }
+}
+```
 
 ---
 
-### NFR-6: Maintainability
-The codebase shall maintain clear separation between:
-- request handling
-- business logic
-- analysis logic
-- persistence
+## Security
+
+- Passwords hashed with **bcrypt**
+- **Helmet** HTTP headers
+- **Rate limiting** — global + stricter limits on auth routes
+- Input validation via **express-validator**
+- Events and analysis scoped by authenticated `userId`
+- CORS restricted to trusted origins only
+- Secure **HttpOnly cookie**-based authentication
 
 ---
 
-### NFR-7: Extensibility
-The system shall support future extensions such as:
-- background analysis (Celery)
-- caching (Redis)
-- event pipelines (RabbitMQ)
-- dashboards (React)
-- observability (Prometheus, ELK)
+## Challenges Solved
 
-without major architectural changes.
+**Cross-Origin Authentication**
+Implemented secure session handling across Vercel and Render deployments using `SameSite=None`, HTTPS-only cookies, and CORS credential management.
 
----
+**AI Cost Optimization**
+Introduced in-memory caching and fallback logic to reduce unnecessary Groq API calls and avoid excessive inference costs.
 
-### NFR-8: Privacy Awareness
-EchoTrace records only **explicitly user-submitted events**.  
-No automatic tracking or background surveillance is performed.
+**Responsive User Experience**
+Built adaptive authentication layouts and disabled cursor effects on touch devices for smooth mobile usability.
+
+**Why Groq?**
+Selected for its ultra-low-latency inference, enabling near real-time behavioral analysis and AI coaching inside the dashboard.
 
 ---
 
-## 🚀 Future Enhancements
+## Functional Requirements
 
-- Background timeline reconstruction and analytics
-- Detection of focus blocks and context switches
-- Interactive timeline visualization using React
-- Daily summaries generated asynchronously
-- Metrics and observability for event processing
+| ID | Requirement |
+|---|---|
+| FR-1 | Log timestamped micro-events with label and optional category |
+| FR-2 | Immutable event timestamps after creation |
+| FR-3 | Chronological daily timeline reconstruction |
+| FR-4 | Optional context-switch / gap detection |
+| FR-5 | AI-assisted event categorization with keyword fallback |
+| FR-6 | Date-based event retrieval |
+| FR-7 | Consistent event ordering by timestamp |
+
+## Non-Functional Requirements
+
+| ID | Requirement |
+|---|---|
+| NFR-1 | Low-friction logging (a few seconds per event) |
+| NFR-2 | Reliable persistence with MongoDB |
+| NFR-3 | Immutable event storage |
+| NFR-4 | Refreshable and regeneratable AI analysis |
+| NFR-5 | Fast timeline retrieval for "today" views |
+| NFR-6 | Modular backend: separated routes, services, and models |
+| NFR-7 | Extensible for caching, queues, and observability |
+| NFR-8 | Privacy-first: only user-submitted events, no passive tracking |
 
 ---
 
-## 🧠 Project Philosophy
+## Future Enhancements
+
+- 🧠 Semantic memory using vector embeddings
+- 📊 Weekly behavioral reports and summaries
+- 🔥 Context-switch heatmaps and visualization
+- 🔄 WebSocket-based live timeline synchronization
+- 📱 Native mobile companion app
+- 🔐 OAuth integration (Google / GitHub)
+- ⏱ Background job queues for scheduled nightly analysis
+
+---
+
+## What I Learned
+
+Building EchoTrace strengthened my understanding of:
+- Secure cross-origin authentication across separate deployment hosts
+- Scalable frontend/backend separation with real production constraints
+- AI inference optimization and cost-aware caching strategies
+- REST API architecture design and session management
+- Responsive UI engineering and adaptive layout techniques
+- Production deployment workflows across Vercel and Render
+
+---
+
+## Philosophy
 
 > *Understanding behavior starts with observing reality, not enforcing plans.*
 
-EchoTrace prioritizes **clarity, correctness, and extensibility** over premature optimization or unnecessary complexity.
+EchoTrace prioritizes **clarity, correctness, and extensibility** — a working full-stack product with AI augmentation, without over-engineering the first release.
+
+---
+
+## Author
+
+<table>
+  <tr>
+    <td align="center">
+      <strong>MKN Sai Varun</strong><br/>
+      Building intelligent full-stack systems that combine AI, usability, and real-world impact.<br/><br/>
+      <a href="https://www.linkedin.com/in/mknsvarun">LinkedIn</a> •
+      <a href="https://github.com/MKN-Sai-Varun">GitHub</a>
+    </td>
+  </tr>
+</table>
+
+---
+ 
+## 🌐 View More of My Work
+ 
+<div align="center">
+Like what you see? Check out my other projects and work on my portfolio.
+ 
+  <a href="https://portfolio-tau-ochre-61.vercel.app/">
+    <img src="https://img.shields.io/badge/Portfolio-Visit%20Now-6366f1?style=for-the-badge&logo=firefox&logoColor=white" alt="Portfolio" />
+  </a>
+  
+---
+ 
+## License
+ 
+This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
