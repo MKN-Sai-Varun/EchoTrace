@@ -13,6 +13,7 @@ import {
   Coffee,
 } from "lucide-react";
 import { cleanChatText } from "@/lib/cleanChatText";
+import { getClientTimeZone } from "@/lib/timezone";
 
 type Message = {
   id: string;
@@ -68,7 +69,10 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
       const res = await fetch(`${apiUrl}/api/analysis/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: textToSend }),
+        body: JSON.stringify({
+          message: textToSend,
+          timeZone: getClientTimeZone(),
+        }),
         credentials: "include",
       });
 

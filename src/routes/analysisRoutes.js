@@ -12,6 +12,7 @@ import {
 } from "../services/analysisService.js";
 import { getAiAnalysis, getAiCategory, getAiChatResponse } from "../services/aiService.js";
 import { getTodayEvents } from "../services/eventService.js";
+import { formatTimeInZone, resolveTimeZone } from "../utils/timezone.js";
 
 const router = express.Router();
 
@@ -287,19 +288,24 @@ router.get("/profile-stats", requireAuth, async (req, res) => {
 /** POST AI productivity chat response */
 router.post("/chat", requireAuth, async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, timeZone: clientTimeZone } = req.body;
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "message string is required" });
     }
 
-    const events = await getTodayEvents(req.userId);
+    const timeZone = resolveTimeZone(
+      typeof clientTimeZone === "string" ? clientTimeZone : undefined
+    );
+
+    const events = await getTodayEvents(req.userId, timeZone);
     const analysis = await getTodayAnalysis(req.userId);
     const routineRecord = await getTodayRoutineRecord(req.userId);
 
-    const mappedEvents = events.map(e => ({
-      time: new Date(e.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    const mappedEvents = events.map((e) => ({
+      time: formatTimeInZone(e.timestamp, timeZone),
+      timestamp: e.timestamp,
       category: e.category,
-      label: e.label
+      label: e.label,
     }));
 
     const analysisContext = analysis ? {
@@ -307,7 +313,13 @@ router.post("/chat", requireAuth, async (req, res) => {
       mindset: analysis.mindset,
     } : null;
 
-    const response = await getAiChatResponse(message, mappedEvents, analysisContext, routineRecord);
+    const response = await getAiChatResponse(
+      message,
+      mappedEvents,
+      analysisContext,
+      routineRecord,
+      timeZone
+    );
     res.json({ response });
   } catch (error) {
     console.error("AI chat error:", error);

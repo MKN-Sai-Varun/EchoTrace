@@ -10,6 +10,7 @@
 
 import { categoryCache, analysisCache, routineCache, suggestionsCache } from "./aiCache.js";
 import { cleanChatText } from "../utils/cleanChatText.js";
+import { formatDateTimeContext, formatTimeInZone, resolveTimeZone } from "../utils/timezone.js";
 
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
 
@@ -351,17 +352,30 @@ ${historyContext}`;
  * AI Productivity Chat Agent.
  * Gives context-aware, real-time responses about user's day and questions.
  */
-export async function getAiChatResponse(message, events = [], analysis = null, routineRecord = null) {
+export async function getAiChatResponse(
+  message,
+  events = [],
+  analysis = null,
+  routineRecord = null,
+  timeZone = "UTC"
+) {
   if (!process.env.GROQ_API_KEY) {
     return "The AI Coach is currently offline. Please configure your GROQ_API_KEY.";
   }
 
+  const tz = resolveTimeZone(timeZone);
   const now = new Date();
-  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
+  const nowContext = formatDateTimeContext(now, tz);
 
   const eventsSummary = events.length > 0
-    ? events.map((e, i) => `${i + 1}. [${e.time || "?"}] [${e.category || "Uncategorized"}] ${e.label}`).join("\n")
+    ? events
+        .map((e, i) => {
+          const timeLabel =
+            e.time ||
+            (e.timestamp ? formatTimeInZone(e.timestamp, tz) : "?");
+          return `${i + 1}. [${timeLabel}] [${e.category || "Uncategorized"}] ${e.label}`;
+        })
+        .join("\n")
     : "No events logged today yet.";
 
   const mindsetSummary = analysis?.mindset 
@@ -372,7 +386,9 @@ export async function getAiChatResponse(message, events = [], analysis = null, r
 Your goal is to guide the user in real-time, helping them stay balanced, focused, and healthy.
 Be conversational, encouraging, direct, and concise (keep replies under 3-4 sentences unless they ask for a detailed plan).
 
-Context for Today (${dayName}, current time is ${timeStr}):
+All times below are in the user's local timezone (${tz}). Use only these times when referring to when events happened or what to do "now".
+
+Context for today — user's local time: ${nowContext}
 - Logged Events:
 ${eventsSummary}
 - Today's Productivity Score: ${analysis?.score || "N/A"}/100
