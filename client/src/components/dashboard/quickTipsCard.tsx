@@ -21,7 +21,7 @@ export default function QuickTipsCard({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.22 }}
-          className="glass-card p-4 bg-gradient-to-br from-blue-50/90 to-indigo-50/90 border border-blue-200/60"
+          className="glass-card p-4 bg-gradient-to-br from-blue-50/90 to-indigo-50/90 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200/60 dark:border-blue-800/40"
         >
           <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-1.5 flex items-center gap-1">
             <Sun className="w-3 h-3" /> Now
@@ -36,7 +36,7 @@ export default function QuickTipsCard({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="glass-card p-4 bg-gradient-to-br from-amber-50/90 to-orange-50/90 border border-amber-200/60"
+          className="glass-card p-4 bg-gradient-to-br from-amber-50/90 to-orange-50/90 dark:from-amber-950/50 dark:to-orange-950/50 border border-amber-200/60 dark:border-amber-800/40"
         >
           <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1.5 flex items-center gap-1">
             <Star className="w-3 h-3" /> Tip

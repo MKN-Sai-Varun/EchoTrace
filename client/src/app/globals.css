@@ -177,6 +177,92 @@
 .dark .border-slate-200\/60 { border-color: rgba(255, 255, 255, 0.08) !important; }
 .dark .border-slate-100 { border-color: rgba(255, 255, 255, 0.06) !important; }
 
+/* Auth sign-in / register form — always a light surface, even when site is in dark mode */
+.dark .auth-surface {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  color: #0f172a !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+}
+.dark .auth-surface .text-slate-800 { color: #1e293b !important; }
+.dark .auth-surface .text-slate-700 { color: #334155 !important; }
+.dark .auth-surface .text-slate-600 { color: #475569 !important; }
+.dark .auth-surface .text-slate-500 { color: #64748b !important; }
+.dark .auth-surface .text-slate-400 { color: #94a3b8 !important; }
+.dark .auth-surface .bg-slate-50,
+.dark .auth-surface .bg-slate-50\/80 { background-color: #f8fafc !important; }
+.dark .auth-surface .bg-slate-100 { background-color: #f1f5f9 !important; }
+.dark .auth-surface .bg-white { background-color: #ffffff !important; }
+.dark .auth-surface .glass-input {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+.dark .auth-surface .glass-input:focus {
+  background-color: #ffffff !important;
+}
+.dark .auth-surface .bg-rose-50 {
+  background-color: #fff1f2 !important;
+}
+.dark .auth-surface .text-rose-600 { color: #e11d48 !important; }
+.dark .auth-surface .border-rose-200 { border-color: #fecdd3 !important; }
+
+/* Pastel inset panels (suggestions, tips) — dark tinted bg + light text in dark mode */
+.dark .bg-amber-50,
+.dark .bg-amber-50\/60,
+.dark .bg-amber-50\/90 { background-color: rgba(69, 26, 3, 0.48) !important; }
+.dark .bg-emerald-50,
+.dark .bg-emerald-50\/60 { background-color: rgba(6, 78, 59, 0.45) !important; }
+.dark .bg-rose-50 { background-color: rgba(136, 19, 55, 0.4) !important; }
+.dark .bg-blue-50 { background-color: rgba(30, 58, 138, 0.4) !important; }
+.dark .bg-teal-50 { background-color: rgba(19, 78, 74, 0.45) !important; }
+.dark .bg-teal-950\/45 { background-color: rgba(19, 78, 74, 0.45) !important; }
+.dark .bg-blue-950\/45,
+.dark .bg-blue-950\/50 { background-color: rgba(30, 58, 138, 0.45) !important; }
+.dark .bg-amber-950\/45,
+.dark .bg-amber-950\/50 { background-color: rgba(69, 26, 3, 0.48) !important; }
+.dark .bg-rose-950\/45 { background-color: rgba(136, 19, 55, 0.4) !important; }
+.dark .bg-emerald-950\/45 { background-color: rgba(6, 78, 59, 0.45) !important; }
+.dark .bg-orange-950\/45 { background-color: rgba(124, 45, 18, 0.45) !important; }
+.dark .bg-violet-950\/45 { background-color: rgba(76, 29, 149, 0.4) !important; }
+.dark .bg-green-950\/45 { background-color: rgba(20, 83, 45, 0.45) !important; }
+.dark .bg-indigo-950\/50 { background-color: rgba(49, 46, 129, 0.45) !important; }
+.dark .bg-orange-950\/50 { background-color: rgba(124, 45, 18, 0.5) !important; }
+.dark .bg-slate-800\/50 { background-color: rgba(30, 41, 59, 0.5) !important; }
+.dark .bg-orange-50 { background-color: rgba(124, 45, 18, 0.45) !important; }
+.dark .bg-violet-50 { background-color: rgba(76, 29, 149, 0.4) !important; }
+.dark .bg-green-50 { background-color: rgba(20, 83, 45, 0.45) !important; }
+.dark .bg-white\/60,
+.dark .bg-white\/70,
+.dark .bg-white\/80 { background-color: rgba(30, 41, 59, 0.55) !important; }
+
+.dark .border-amber-100,
+.dark .border-amber-200 { border-color: rgba(251, 191, 36, 0.28) !important; }
+.dark .border-emerald-100 { border-color: rgba(52, 211, 153, 0.28) !important; }
+.dark .border-rose-100 { border-color: rgba(251, 113, 133, 0.28) !important; }
+.dark .border-blue-100,
+.dark .border-blue-200,
+.dark .border-blue-200\/60 { border-color: rgba(96, 165, 250, 0.28) !important; }
+.dark .border-teal-200 { border-color: rgba(45, 212, 191, 0.28) !important; }
+.dark .border-white\/80 { border-color: rgba(255, 255, 255, 0.12) !important; }
+
+.dark .from-blue-50\/90 { --tw-gradient-from: rgb(30 58 138 / 0.45) !important; }
+.dark .to-indigo-50\/90 { --tw-gradient-to: rgb(49 46 129 / 0.45) !important; }
+.dark .from-amber-50\/90 { --tw-gradient-from: rgb(69 26 3 / 0.5) !important; }
+.dark .to-orange-50\/90 { --tw-gradient-to: rgb(124 45 18 / 0.5) !important; }
+.dark .from-blue-50 { --tw-gradient-from: rgb(30 58 138 / 0.45) !important; }
+.dark .to-indigo-50 { --tw-gradient-to: rgb(49 46 129 / 0.45) !important; }
+
+.dark .text-amber-700 { color: #fcd34d !important; }
+.dark .text-blue-600 { color: #93c5fd !important; }
+.dark .text-blue-700 { color: #93c5fd !important; }
+.dark .text-amber-600 { color: #fcd34d !important; }
+.dark .text-teal-700 { color: #5eead4 !important; }
+.dark .text-rose-700 { color: #fda4af !important; }
+.dark .text-emerald-700 { color: #6ee7b7 !important; }
+.dark .text-orange-700 { color: #fdba74 !important; }
+.dark .text-violet-700 { color: #c4b5fd !important; }
+.dark .text-green-700 { color: #86efac !important; }
+
 /* Custom animation for spinner */
 .animate-spin-slow {
   animation: spin 6s linear infinite;

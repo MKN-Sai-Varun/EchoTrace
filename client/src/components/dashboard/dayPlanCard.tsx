@@ -90,7 +90,7 @@ export default function DayPlanCard({ suggestions }: DayPlanCardProps) {
           );
         })}
         {suggestions.weeklyGoal && (
-          <div className="flex gap-2 items-start p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200/60 sm:col-span-2">
+          <div className="flex gap-2 items-start p-3 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 rounded-xl border border-blue-200/60 dark:border-blue-800/40 sm:col-span-2">
             <TrendingUp className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wide mb-0.5">

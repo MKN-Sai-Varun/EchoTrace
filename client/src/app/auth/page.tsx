@@ -143,14 +143,14 @@ export default function AuthPage() {
         <motion.div
           animate={{ left: isDesktop ? (isLogin ? "0%" : "50%") : "0%" }}
           transition={{ type: "spring", stiffness: 55, damping: 14 }}
-          className="relative lg:absolute top-0 w-full lg:w-1/2 min-h-0 lg:h-full bg-white/97 dark:bg-slate-900/97 backdrop-blur-3xl shadow-[0_0_60px_rgba(0,0,0,0.12)] z-20 flex flex-col justify-center px-5 sm:px-8 lg:px-12 py-8 lg:py-0 border-x border-white/60 overflow-y-auto"
+          className="auth-surface relative lg:absolute top-0 w-full lg:w-1/2 min-h-0 lg:h-full bg-white/98 backdrop-blur-3xl shadow-[0_0_60px_rgba(0,0,0,0.12)] z-20 flex flex-col justify-center px-5 sm:px-8 lg:px-12 py-8 lg:py-0 border-x border-slate-200/80 overflow-y-auto"
         >
-          <div className="flex lg:hidden gap-1 p-1 mb-6 rounded-xl bg-slate-100 dark:bg-slate-800/80 w-full max-w-sm mx-auto">
+          <div className="flex lg:hidden gap-1 p-1 mb-6 rounded-xl bg-slate-100 w-full max-w-sm mx-auto">
             <button
               type="button"
               onClick={() => switchMode(true)}
               className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${
-                isLogin ? "bg-white dark:bg-slate-700 text-blue-600 shadow-sm" : "text-slate-500"
+                isLogin ? "bg-white text-blue-600 shadow-sm" : "text-slate-500"
               }`}
             >
               Sign In
@@ -159,7 +159,7 @@ export default function AuthPage() {
               type="button"
               onClick={() => switchMode(false)}
               className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${
-                !isLogin ? "bg-white dark:bg-slate-700 text-emerald-600 shadow-sm" : "text-slate-500"
+                !isLogin ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500"
               }`}
             >
               Register
