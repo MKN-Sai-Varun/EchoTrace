@@ -16,9 +16,18 @@ export default function AuthPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     if (window.location.search.includes("mode=register")) setIsLogin(false);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
 
   // Clear error and fields when switching modes
@@ -58,11 +67,11 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center p-4 sm:p-8 overflow-hidden">
-      <div className="w-full max-w-5xl h-[680px] glass-card relative flex overflow-hidden shadow-2xl">
+    <div className="flex flex-col min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+      <div className="w-full max-w-5xl min-h-0 lg:h-[680px] glass-card relative flex flex-col lg:flex-row overflow-hidden shadow-2xl">
 
         {/* ── LEFT INFO PANEL — shown when register form is active (form slid right) ── */}
-        <div className="w-1/2 h-full flex flex-col justify-center px-12 py-8 relative select-none">
+        <div className="hidden lg:flex w-1/2 h-full flex-col justify-center px-12 py-8 relative select-none">
           <div className="absolute inset-0 bg-blue-500/5 -z-10" />
           <div className="flex items-center gap-2 mb-8">
             <Activity className="w-8 h-8 text-blue-600" />
@@ -86,16 +95,16 @@ export default function AuthPage() {
             ))}
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wide">New to EchoTrace?</p>
-            <button onClick={() => switchMode(false)}
+            <p className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wide">Already have an account?</p>
+            <button type="button" onClick={() => switchMode(true)}
               className="px-7 py-2.5 rounded-xl border-2 border-blue-500 text-blue-600 font-bold hover:bg-blue-50 transition-colors text-sm shadow-sm">
-              Create Account
+              Sign In
             </button>
           </div>
         </div>
 
         {/* ── RIGHT INFO PANEL — shown when login form is active (form on left) ── */}
-        <div className="w-1/2 h-full flex flex-col justify-center px-12 py-8 relative select-none">
+        <div className="hidden lg:flex w-1/2 h-full flex-col justify-center px-12 py-8 relative select-none">
           <div className="absolute inset-0 bg-emerald-500/5 -z-10" />
           <div className="flex items-center gap-2 mb-8 justify-end">
             <span className="text-2xl font-bold text-slate-800">EchoTrace</span>
@@ -119,10 +128,10 @@ export default function AuthPage() {
             ))}
           </div>
           <div className="flex flex-col items-end">
-            <p className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wide">Already have an account?</p>
-            <button onClick={() => switchMode(true)}
+            <p className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wide">New to EchoTrace?</p>
+            <button type="button" onClick={() => switchMode(false)}
               className="px-7 py-2.5 rounded-xl border-2 border-emerald-500 text-emerald-600 font-bold hover:bg-emerald-50 transition-colors text-sm shadow-sm">
-              Sign In
+              Create Account
             </button>
           </div>
         </div>
@@ -132,19 +141,40 @@ export default function AuthPage() {
             Register → left: 50% (covers right panel, left panel visible)
         ── */}
         <motion.div
-          animate={{ left: isLogin ? "0%" : "50%" }}
+          animate={{ left: isDesktop ? (isLogin ? "0%" : "50%") : "0%" }}
           transition={{ type: "spring", stiffness: 55, damping: 14 }}
-          className="absolute top-0 w-1/2 h-full bg-white/97 backdrop-blur-3xl shadow-[0_0_60px_rgba(0,0,0,0.12)] z-20 flex flex-col justify-center px-12 border-x border-white/60"
+          className="relative lg:absolute top-0 w-full lg:w-1/2 min-h-0 lg:h-full bg-white/97 dark:bg-slate-900/97 backdrop-blur-3xl shadow-[0_0_60px_rgba(0,0,0,0.12)] z-20 flex flex-col justify-center px-5 sm:px-8 lg:px-12 py-8 lg:py-0 border-x border-white/60 overflow-y-auto"
         >
+          <div className="flex lg:hidden gap-1 p-1 mb-6 rounded-xl bg-slate-100 dark:bg-slate-800/80 w-full max-w-sm mx-auto">
+            <button
+              type="button"
+              onClick={() => switchMode(true)}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                isLogin ? "bg-white dark:bg-slate-700 text-blue-600 shadow-sm" : "text-slate-500"
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode(false)}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                !isLogin ? "bg-white dark:bg-slate-700 text-emerald-600 shadow-sm" : "text-slate-500"
+              }`}
+            >
+              Register
+            </button>
+          </div>
+
           <AnimatePresence mode="wait">
             {isLogin ? (
               <motion.div key="login"
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}
-                className="flex flex-col gap-7 w-full max-w-sm mx-auto"
+                className="flex flex-col gap-5 sm:gap-7 w-full max-w-sm mx-auto"
               >
                 <div>
-                  <h1 className="text-4xl font-black text-slate-800 mb-1">Sign In</h1>
+                  <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-1">Sign In</h1>
                   <p className="text-slate-500 text-sm">Welcome back — enter your details below.</p>
                 </div>
 
@@ -183,9 +213,9 @@ export default function AuthPage() {
                   </button>
                 </form>
 
-                <p className="text-xs text-center text-slate-400">
+                <p className="text-xs text-center text-slate-400 lg:hidden">
                   No account?{" "}
-                  <button onClick={() => switchMode(false)} className="text-blue-600 font-bold hover:underline">
+                  <button type="button" onClick={() => switchMode(false)} className="text-blue-600 font-bold hover:underline">
                     Create one free
                   </button>
                 </p>
@@ -194,10 +224,10 @@ export default function AuthPage() {
               <motion.div key="register"
                 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}
-                className="flex flex-col gap-7 w-full max-w-sm mx-auto"
+                className="flex flex-col gap-5 sm:gap-7 w-full max-w-sm mx-auto"
               >
                 <div>
-                  <h1 className="text-4xl font-black text-slate-800 mb-1">Register</h1>
+                  <h1 className="text-3xl sm:text-4xl font-black text-slate-800 mb-1">Register</h1>
                   <p className="text-slate-500 text-sm">Create your free EchoTrace account.</p>
                 </div>
 
@@ -248,9 +278,9 @@ export default function AuthPage() {
                   </button>
                 </form>
 
-                <p className="text-xs text-center text-slate-400">
+                <p className="text-xs text-center text-slate-400 lg:hidden">
                   Already have an account?{" "}
-                  <button onClick={() => switchMode(true)} className="text-emerald-600 font-bold hover:underline">
+                  <button type="button" onClick={() => switchMode(true)} className="text-emerald-600 font-bold hover:underline">
                     Sign in
                   </button>
                 </p>

@@ -103,7 +103,7 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
   ];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -111,7 +111,7 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 250 }}
-            className="glass-card mb-4 w-[380px] sm:w-[420px] h-[550px] flex flex-col shadow-2xl border border-white/20 overflow-hidden"
+            className="glass-card mb-4 w-[calc(100vw-2rem)] max-w-[420px] sm:w-[420px] h-[min(550px,calc(100vh-6rem))] flex flex-col shadow-2xl border border-white/20 overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border-b border-slate-200/50 flex justify-between items-center shrink-0">

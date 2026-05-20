@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} font-sans`}>
-      <body className="cursor-none" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <CustomCursor />
         <div className="bg-shape shape-1" />
         <div className="bg-shape shape-2" />

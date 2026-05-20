@@ -51,8 +51,11 @@
     --bg-shape-3: #451a03;
   }
 
-  * {
-    cursor: none !important;
+  /* Laptops/desktops with mouse or trackpad — not phones or touch tablets */
+  @media (hover: hover) and (pointer: fine) {
+    * {
+      cursor: none !important;
+    }
   }
 
   body {

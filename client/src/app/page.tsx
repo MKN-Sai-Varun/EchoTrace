@@ -8,16 +8,16 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navigation */}
-      <nav className="flex justify-between items-center px-8 py-6 w-full max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <Activity className="w-8 h-8 text-blue-600" />
-          <span className="text-2xl font-bold text-gradient">EchoTrace</span>
+      <nav className="flex justify-between items-center gap-3 px-4 sm:px-8 py-4 sm:py-6 w-full max-w-7xl mx-auto">
+        <div className="flex items-center gap-2 min-w-0">
+          <Activity className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600 shrink-0" />
+          <span className="text-xl sm:text-2xl font-bold text-gradient truncate">EchoTrace</span>
         </div>
-        <div className="flex gap-4">
-          <Link href="/auth" className="px-5 py-2.5 rounded-xl font-medium text-slate-700 hover:bg-white/50 transition-colors">
+        <div className="flex gap-2 sm:gap-4 shrink-0">
+          <Link href="/auth" className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-medium text-slate-700 hover:bg-white/50 transition-colors">
             Login
           </Link>
-          <Link href="/auth?mode=register" className="px-5 py-2.5 rounded-xl font-medium btn-primary">
+          <Link href="/auth?mode=register" className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-medium btn-primary whitespace-nowrap">
             Get Started
           </Link>
         </div>
@@ -39,7 +39,7 @@ export default function Home() {
               <span className="text-sm font-medium text-slate-700">Now with AI Insights</span>
             </div>
             
-            <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-800 leading-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-800 leading-tight">
               Track reality, <br />
               <span className="text-gradient">not just plans.</span>
             </h1>
