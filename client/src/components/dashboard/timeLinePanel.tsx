@@ -68,7 +68,7 @@ export default function TimelinePanel({
                     className={`w-2.5 h-2.5 rounded-full z-10 border-2 border-white shrink-0 ${item.dot} shadow-sm`}
                   />
 
-                  <div className="flex-grow glass-card px-4 py-3 flex items-center justify-between gap-3 hover:bg-white/90 transition-colors min-w-0">
+                  <div className="flex-grow glass-card log-item px-4 py-3 flex items-center justify-between gap-3 transition-colors min-w-0">
                     <span className="text-sm font-medium text-slate-800 truncate">
                       {item.label}
                     </span>

@@ -108,7 +108,12 @@ export default function Dashboard() {
           window.location.href = "/auth";
           return;
         }
-        setUsername((await meRes.json()).username || "User");
+        const meData = await meRes.json();
+        setUsername(meData.username || "User");
+        if (meData.customCursor !== undefined) {
+          localStorage.setItem("customCursor", meData.customCursor ? "true" : "false");
+          window.dispatchEvent(new Event("customCursorToggle"));
+        }
         const evRes = await fetch(`${API}/api/events/today`, { credentials: "include" });
         if (evRes.ok) {
           const raw = await evRes.json();

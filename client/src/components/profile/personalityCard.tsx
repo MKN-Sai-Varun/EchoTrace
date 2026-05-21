@@ -21,9 +21,9 @@ export default function PersonalityCard({ personality }: PersonalityCardProps) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.08 }}
-      className="glass-card p-5 bg-gradient-to-br from-violet-50/80 to-indigo-50/80 border border-violet-200/60"
+      className="glass-card p-5 border border-violet-200/60 dark:border-violet-800/40 bg-violet-100 dark:bg-violet-950/40"
     >
-      <p className="text-xs font-bold text-violet-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
         <User className="w-3.5 h-3.5" /> Personality Type
       </p>
       <h3 className="text-lg font-black text-slate-800 mb-2">

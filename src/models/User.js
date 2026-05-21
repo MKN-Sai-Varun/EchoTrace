@@ -34,6 +34,10 @@ const UserSchema = new mongoose.Schema({
     enum: ["midnight", "ocean", "forest", "sunset", "lavender"],
     default: "midnight"
   },
+  customCursor: {
+    type: Boolean,
+    default: false
+  },
   createdAt: { type: Date, default: Date.now }
 });
 

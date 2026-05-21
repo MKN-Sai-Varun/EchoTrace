@@ -10,6 +10,7 @@ export default function CustomCursor() {
   const [enabled, setEnabled] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [isOverInput, setIsOverInput] = useState(false);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -21,14 +22,17 @@ export default function CustomCursor() {
   useEffect(() => {
     const mq = window.matchMedia(LAPTOP_CURSOR_QUERY);
     const update = () => {
-      const on = mq.matches;
+      const isCustomCursorPreferred = localStorage.getItem("customCursor") === "true";
+      const on = mq.matches && isCustomCursorPreferred;
       setEnabled(on);
       document.documentElement.classList.toggle("custom-cursor", on);
     };
     update();
     mq.addEventListener("change", update);
+    window.addEventListener("customCursorToggle", update);
     return () => {
       mq.removeEventListener("change", update);
+      window.removeEventListener("customCursorToggle", update);
       document.documentElement.classList.remove("custom-cursor");
     };
   }, []);
@@ -43,14 +47,26 @@ export default function CustomCursor() {
     };
 
     const handleMouseLeave = () => setIsVisible(false);
-    const handleMouseEnter = () => setIsVisible(true);
+    const handleMouseEnter = () => {
+      setIsVisible(true);
+    };
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      if (!target) return;
+
+      const isInput = 
+        target.tagName.toLowerCase() === "input" ||
+        target.tagName.toLowerCase() === "textarea" ||
+        target.isContentEditable ||
+        !!target.closest("input") ||
+        !!target.closest("textarea");
+
+      setIsOverInput(isInput);
+
       setIsHovering(
         target.tagName.toLowerCase() === "button" ||
         target.tagName.toLowerCase() === "a" ||
-        target.tagName.toLowerCase() === "input" ||
         !!target.closest("button") ||
         !!target.closest("a")
       );
@@ -74,7 +90,7 @@ export default function CustomCursor() {
   const smoothDotX = useSpring(dotX, { damping: 40, stiffness: 600 });
   const smoothDotY = useSpring(dotY, { damping: 40, stiffness: 600 });
 
-  if (!enabled || !isVisible) return null;
+  if (!enabled || !isVisible || isOverInput) return null;
 
   return (
     <>

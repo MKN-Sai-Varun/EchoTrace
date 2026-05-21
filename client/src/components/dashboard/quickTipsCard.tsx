@@ -21,12 +21,22 @@ export default function QuickTipsCard({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.22 }}
-          className="glass-card p-4 bg-gradient-to-br from-blue-50/90 to-indigo-50/90 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200/60 dark:border-blue-800/40"
+          className="rounded-2xl p-4 border"
+          style={{
+            background: "var(--tip-now-bg, linear-gradient(135deg, #bfdbfe, #c7d2fe))",
+            borderColor: "rgba(96,165,250,0.5)",
+          }}
         >
-          <p className="text-xs font-bold text-blue-600 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+          <p
+            className="text-xs font-extrabold uppercase tracking-wide mb-1.5 flex items-center gap-1"
+            style={{ color: "var(--tip-label-color, #1e3a8a)" }}
+          >
             <Sun className="w-3 h-3" /> Now
           </p>
-          <p className="text-xs text-slate-700 leading-relaxed">
+          <p
+            className="text-xs leading-relaxed font-semibold"
+            style={{ color: "var(--tip-body-color, #0f172a)" }}
+          >
             {timeOfDaySuggestion}
           </p>
         </motion.div>
@@ -36,12 +46,22 @@ export default function QuickTipsCard({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="glass-card p-4 bg-gradient-to-br from-amber-50/90 to-orange-50/90 dark:from-amber-950/50 dark:to-orange-950/50 border border-amber-200/60 dark:border-amber-800/40"
+          className="rounded-2xl p-4 border"
+          style={{
+            background: "var(--tip-tip-bg, linear-gradient(135deg, #fde68a, #fed7aa))",
+            borderColor: "rgba(251,191,36,0.5)",
+          }}
         >
-          <p className="text-xs font-bold text-amber-600 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+          <p
+            className="text-xs font-extrabold uppercase tracking-wide mb-1.5 flex items-center gap-1"
+            style={{ color: "var(--tip-label-color, #78350f)" }}
+          >
             <Star className="w-3 h-3" /> Tip
           </p>
-          <p className="text-xs text-slate-700 leading-relaxed">
+          <p
+            className="text-xs leading-relaxed font-semibold"
+            style={{ color: "var(--tip-body-color, #0f172a)" }}
+          >
             {personalizedTip}
           </p>
         </motion.div>

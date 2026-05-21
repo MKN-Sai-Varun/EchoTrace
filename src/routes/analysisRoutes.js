@@ -1,4 +1,5 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import Session from "../models/Session.js";
 import {
   getTodayAnalysis,
@@ -285,12 +286,25 @@ router.get("/profile-stats", requireAuth, async (req, res) => {
   }
 });
 
+const chatLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // limit each user to 15 chat messages per 15 minutes
+  keyGenerator: (req) => req.userId?.toString() || req.ip,
+  message: { error: "You've reached the message limit for the AI Coach. Please take a short break and try again in a few minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 /** POST AI productivity chat response */
-router.post("/chat", requireAuth, async (req, res) => {
+router.post("/chat", requireAuth, chatLimiter, async (req, res) => {
   try {
     const { message, timeZone: clientTimeZone } = req.body;
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "message string is required" });
+    }
+
+    if (message.length > 500) {
+      return res.status(400).json({ error: "Message is too long. Please keep your question under 500 characters." });
     }
 
     const timeZone = resolveTimeZone(
@@ -323,7 +337,8 @@ router.post("/chat", requireAuth, async (req, res) => {
     res.json({ response });
   } catch (error) {
     console.error("AI chat error:", error);
-    res.status(500).json({ error: "AI agent failed: " + error.message });
+    // Graceful fallback response
+    res.status(200).json({ response: "Sorry, I had trouble processing that request. Please try again in a moment." });
   }
 });
 

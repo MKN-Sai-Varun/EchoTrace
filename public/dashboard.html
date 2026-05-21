@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <title>Dashboard - EchoTrace</title>
+    <style>
+        .switch-container input:checked + .switch-slider {
+            background-color: #3b82f6 !important;
+            border-color: #2563eb !important;
+        }
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        .switch-container input:checked + .switch-slider:before {
+            transform: translateX(18px);
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-page">
@@ -30,6 +50,14 @@
                     <button class="theme-btn" data-theme="forest" title="Forest" onclick="setTheme('forest')"></button>
                     <button class="theme-btn" data-theme="sunset" title="Sunset" onclick="setTheme('sunset')"></button>
                     <button class="theme-btn" data-theme="lavender" title="Lavender" onclick="setTheme('lavender')"></button>
+                </div>
+                <div class="settings-divider" style="margin: 15px 0 10px; border-top: 1px solid rgba(255,255,255,0.15);"></div>
+                <div class="settings-row" style="display: flex; align-items: center; justify-content: space-between; padding: 5px 0;">
+                    <span style="font-size: 13px; font-weight: 500; color: #94a3b8;">Custom Cursor</span>
+                    <label class="switch-container" style="position: relative; display: inline-block; width: 40px; height: 22px; cursor: pointer;">
+                        <input type="checkbox" id="customCursorCheckbox" onchange="toggleCustomCursor(this.checked)" style="opacity: 0; width: 0; height: 0; cursor: pointer;">
+                        <span class="switch-slider" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .3s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.2);"></span>
+                    </label>
                 </div>
             </div>
 
@@ -183,6 +211,21 @@
             }
         }
 
+        // Toggle custom cursor preference
+        async function toggleCustomCursor(enabled) {
+            try {
+                await fetch('/api/auth/preferences', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ customCursor: enabled })
+                });
+                showNotification('Preferences updated!', 'success');
+            } catch (error) {
+                console.error('Failed to save cursor settings:', error);
+            }
+        }
+
         // Load user data
         async function loadUserData() {
             try {
@@ -208,6 +251,9 @@
                 } else {
                     setTheme('midnight');
                 }
+
+                // Set custom cursor checkbox
+                document.getElementById('customCursorCheckbox').checked = !!user.customCursor;
             } catch (error) {
                 console.error('Error loading user data:', error);
             }

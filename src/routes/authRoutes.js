@@ -187,7 +187,7 @@ router.get("/me", async (req, res) => {
     if (!session) return res.status(401).json({ error: "Session expired" });
 
     const user = await User.findById(session.userId)
-      .select("username email firstName lastName theme createdAt");
+      .select("username email firstName lastName theme customCursor createdAt");
     if (!user) return res.status(401).json({ error: "User not found" });
 
     res.json({
@@ -196,6 +196,7 @@ router.get("/me", async (req, res) => {
       firstName: user.firstName || null,
       lastName:  user.lastName  || null,
       theme:     user.theme    || "midnight",
+      customCursor: user.customCursor ?? false,
       createdAt: user.createdAt,
     });
   } catch (error) {
@@ -217,22 +218,31 @@ router.patch("/preferences", async (req, res) => {
       return res.status(401).json({ error: "Session expired" });
     }
 
-    const { theme } = req.body;
-    const validThemes = ["midnight", "ocean", "forest", "sunset", "lavender"];
-    
-    if (theme && !validThemes.includes(theme)) {
-      return res.status(400).json({ error: "Invalid theme" });
+    const { theme, customCursor } = req.body;
+    const updateData = {};
+
+    if (theme !== undefined) {
+      const validThemes = ["midnight", "ocean", "forest", "sunset", "lavender"];
+      if (!validThemes.includes(theme)) {
+        return res.status(400).json({ error: "Invalid theme" });
+      }
+      updateData.theme = theme;
+    }
+
+    if (customCursor !== undefined) {
+      updateData.customCursor = !!customCursor;
     }
 
     const user = await User.findByIdAndUpdate(
       session.userId,
-      { theme },
+      updateData,
       { new: true }
-    ).select("username theme");
+    ).select("username theme customCursor");
 
     res.json({
       message: "Preferences updated",
-      theme: user.theme
+      theme: user.theme,
+      customCursor: user.customCursor ?? false
     });
   } catch (error) {
     console.error("Update preferences error:", error);

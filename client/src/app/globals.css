@@ -49,13 +49,44 @@
     --bg-shape-1: #111827;
     --bg-shape-2: #064e3b;
     --bg-shape-3: #451a03;
+
+    --tip-now-bg: linear-gradient(135deg, rgba(30, 58, 138, 0.35), rgba(49, 46, 129, 0.35));
+    --tip-tip-bg: linear-gradient(135deg, rgba(69, 26, 3, 0.40), rgba(124, 45, 18, 0.40));
+    --tip-label-color: #93c5fd;
+    --tip-body-color: #e2e8f0;
   }
 
   /* Laptops/desktops with mouse or trackpad — not phones or touch tablets */
   @media (hover: hover) and (pointer: fine) {
-    * {
+    html.custom-cursor * {
       cursor: none !important;
     }
+  }
+
+  /* High-visibility inputs/textareas - Black cursor/caret in light mode */
+  /* High-visibility inputs/textareas - adaptive caret in light mode */
+input,
+textarea,
+[contenteditable],
+html.custom-cursor input,
+html.custom-cursor textarea,
+html.custom-cursor [contenteditable] {
+  cursor: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2716%27%20height%3D%2716%27%20viewBox%3D%270%200%2016%2016%27%3E%3Cpath%20d%3D%27M8%202v12M5%202h6M5%2014h6%27%20stroke%3D%27%23334155%27%20stroke-width%3D%271.5%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 8 8, text !important;
+  caret-color: #3b82f6 !important;
+}
+
+  /* High-visibility inputs/textareas - White cursor/caret in dark mode */
+  .dark input,
+  .dark textarea,
+  .dark [contenteditable],
+  html.custom-cursor.dark input,
+  html.custom-cursor.dark textarea,
+  html.custom-cursor.dark [contenteditable],
+  .dark html.custom-cursor input,
+  .dark html.custom-cursor textarea,
+  .dark html.custom-cursor [contenteditable] {
+    cursor: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2716%27%20height%3D%2716%27%20viewBox%3D%270%200%2016%2016%27%3E%3Cpath%20d%3D%27M8%202v12M5%202h6M5%2014h6%27%20stroke%3D%27white%27%20stroke-width%3D%271.5%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E") 8 8, text !important;
+    caret-color: #ffffff !important;
   }
 
   body {
@@ -77,6 +108,9 @@
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06);
     border-radius: 1rem;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .glass-card-hover:hover {
+    background-color: rgba(248, 250, 252, 0.9);
   }
   
   .glass-input {
@@ -170,12 +204,15 @@
 .dark .text-slate-500 { color: #94a3b8 !important; }
 .dark .text-slate-400 { color: #64748b !important; }
 
+
 .dark .bg-white { background-color: rgba(30, 41, 59, 0.6) !important; }
 .dark .bg-slate-50 { background-color: rgba(15, 23, 42, 0.4) !important; }
 .dark .bg-slate-50\/30 { background-color: rgba(15, 23, 42, 0.35) !important; }
 .dark .bg-slate-100 { background-color: rgba(30, 41, 59, 0.8) !important; }
 .dark .border-slate-200\/60 { border-color: rgba(255, 255, 255, 0.08) !important; }
 .dark .border-slate-100 { border-color: rgba(255, 255, 255, 0.06) !important; }
+
+
 
 /* Auth sign-in / register form — always a light surface, even when site is in dark mode */
 .dark .auth-surface {
@@ -229,7 +266,8 @@
 .dark .bg-orange-950\/50 { background-color: rgba(124, 45, 18, 0.5) !important; }
 .dark .bg-slate-800\/50 { background-color: rgba(30, 41, 59, 0.5) !important; }
 .dark .bg-orange-50 { background-color: rgba(124, 45, 18, 0.45) !important; }
-.dark .bg-violet-50 { background-color: rgba(76, 29, 149, 0.4) !important; }
+.dark .bg-violet-50,
+.dark .bg-violet-100 { background-color: rgba(76, 29, 149, 0.4) !important; }
 .dark .bg-green-50 { background-color: rgba(20, 83, 45, 0.45) !important; }
 .dark .bg-white\/60,
 .dark .bg-white\/70,
@@ -263,7 +301,34 @@
 .dark .text-violet-700 { color: #c4b5fd !important; }
 .dark .text-green-700 { color: #86efac !important; }
 
+.dark .hover\:bg-white:hover,
+.dark .hover\:bg-white\/80:hover,
+.dark .hover\:bg-white\/70:hover,
+.dark .hover\:bg-white\/60:hover,
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-slate-800\/90:hover { background-color: rgba(30, 41, 59, 0.9) !important; }
+.hover\:bg-slate-50\/90:hover { background-color: rgba(248, 250, 252, 0.9) !important; }
+
 /* Custom animation for spinner */
 .animate-spin-slow {
   animation: spin 6s linear infinite;
+}
+
+.log-item:hover {
+  background-color: rgba(226, 232, 240, 0.95) !important;
+}
+.dark .log-item:hover {
+  background-color: rgba(30, 41, 59, 0.92) !important;
+}
+
+/* Day plan card item backgrounds */
+:root {
+  --day-item-bg: rgba(255, 255, 255, 0.85);
+  --day-item-weekly-bg: rgba(239, 246, 255, 0.85);
+}
+
+.dark {
+  --day-item-bg: rgba(30, 41, 59, 0.5);
+  --day-item-weekly-bg: rgba(30, 58, 138, 0.3);
 }

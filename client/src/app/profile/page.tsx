@@ -36,6 +36,7 @@ type UserInfo = {
   email: string | null;
   firstName: string | null;
   lastName: string | null;
+  customCursor: boolean;
   createdAt: string;
 };
 
@@ -115,7 +116,12 @@ export default function ProfilePage() {
           window.location.href = "/auth";
           return;
         }
-        setUser(await meRes.json());
+        const meData = await meRes.json();
+        setUser(meData);
+        if (meData.customCursor !== undefined) {
+          localStorage.setItem("customCursor", meData.customCursor ? "true" : "false");
+          window.dispatchEvent(new Event("customCursorToggle"));
+        }
         if (statsRes.ok) {
           setStats(await statsRes.json());
         }
@@ -147,6 +153,49 @@ export default function ProfilePage() {
         {/* LEFT COLUMN: Identity & Personality */}
         <div className="lg:col-span-1 flex flex-col gap-5">
           <IdentityCard user={user} />
+
+          {/* Preferences Card */}
+          <div className="glass-card p-6 flex flex-col gap-4 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500" />
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Preferences</h3>
+            <div className="flex items-center justify-between">
+              <div className="text-left">
+                <p className="text-sm font-semibold text-slate-800">Custom Cursor</p>
+                <p className="text-xs text-slate-400 mt-0.5">Enable EchoTrace's interactive magnetic cursor</p>
+              </div>
+              <button
+                onClick={async () => {
+                  if (!user) return;
+                  const newValue = !user.customCursor;
+                  try {
+                    const res = await fetch(`${API}/api/auth/preferences`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      credentials: "include",
+                      body: JSON.stringify({ customCursor: newValue }),
+                    });
+                    if (res.ok) {
+                      setUser({ ...user, customCursor: newValue });
+                      localStorage.setItem("customCursor", newValue ? "true" : "false");
+                      window.dispatchEvent(new Event("customCursorToggle"));
+                    }
+                  } catch (e) {
+                    console.error("Failed to update cursor settings", e);
+                  }
+                }}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${
+                  user?.customCursor ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-700"
+                }`}
+                aria-label="Toggle custom cursor"
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                    user?.customCursor ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
 
           <PersonalityCard personality={personality} />
 

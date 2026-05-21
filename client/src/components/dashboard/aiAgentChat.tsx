@@ -76,6 +76,7 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
         credentials: "include",
       });
 
+      let errorText = "I am having trouble connecting to the server. Please try again in a moment.";
       if (res.ok) {
         const data = await res.json();
         const agentMsg: Message = {
@@ -86,13 +87,21 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
         };
         setMessages((prev) => [...prev, agentMsg]);
       } else {
-        throw new Error();
+        try {
+          const data = await res.json();
+          if (data.error) {
+            errorText = data.error;
+          } else if (data.response) {
+            errorText = data.response;
+          }
+        } catch {}
+        throw new Error(errorText);
       }
-    } catch {
+    } catch (err: any) {
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: "agent",
-        text: "I am having trouble connecting to the server. Please try again in a moment.",
+        text: err.message || "I am having trouble connecting to the server. Please try again in a moment.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -204,7 +213,7 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
                 e.preventDefault();
                 handleSendMessage(inputValue);
               }}
-              className="p-3 bg-white border-t border-slate-100 flex gap-2 shrink-0"
+              className="p-3 bg-white border-t border-slate-100 flex gap-2 shrink-0 items-center"
             >
               <input
                 type="text"
@@ -212,12 +221,18 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Ask your coach anything..."
                 disabled={isTyping}
+                maxLength={500}
                 className="flex-grow px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all"
               />
+              {inputValue.length >= 400 && (
+                <span className="text-[10px] text-slate-400 font-bold select-none whitespace-nowrap">
+                  {inputValue.length}/500
+                </span>
+              )}
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isTyping}
-                className="w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors disabled:bg-slate-100 disabled:text-slate-400 cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors disabled:bg-slate-100 disabled:text-slate-400 cursor-pointer animate-none"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>
