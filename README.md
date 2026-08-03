@@ -2,7 +2,7 @@
 
 > **AI-powered event timeline and routine intelligence platform**
 >
-> Log micro-events throughout your day, reconstruct your real timeline, and get AI-powered productivity insights — powered by [Groq](https://groq.com).
+> Log micro-events throughout your day, reconstruct your real timeline, and get AI-powered productivity insights - powered by [Groq](https://groq.com).
 
 <div align="center">
   <a href="https://echo-trace-gamma.vercel.app/">
@@ -36,11 +36,11 @@
 
 ## Introduction
 
-EchoTrace helps you understand **how your day actually unfolded** — not just what you planned.
+EchoTrace helps you understand **how your day actually unfolded** - not just what you planned.
 
 Modern productivity tools focus on tasks and habits. EchoTrace focuses on **reality**: you log short, timestamped micro-events; the system builds a daily timeline, scores your routine, infers mindset patterns, and surfaces personalized recommendations.
 
-Context switches, productivity gaps, energy dips — EchoTrace captures all of it.
+Context switches, productivity gaps, energy dips - EchoTrace captures all of it.
 
 ---
 
@@ -160,7 +160,7 @@ EchoTrace/
 ### Prerequisites
 - Node.js 18+
 - MongoDB Atlas connection string
-- Groq API key *(optional — enables AI features)*
+- Groq API key *(optional - enables AI features)*
 
 ### 1. Backend Setup (API)
 
@@ -286,7 +286,7 @@ Content-Type: application/json
 
 - Passwords hashed with **bcrypt**
 - **Helmet** HTTP headers
-- **Rate limiting** — global + stricter limits on auth routes
+- **Rate limiting** - global + stricter limits on auth routes
 - Input validation via **express-validator**
 - Events and analysis scoped by authenticated `userId`
 - CORS restricted to trusted origins only
@@ -365,7 +365,7 @@ Building EchoTrace strengthened my understanding of:
 
 > *Understanding behavior starts with observing reality, not enforcing plans.*
 
-EchoTrace prioritizes **clarity, correctness, and extensibility** — a working full-stack product with AI augmentation, without over-engineering the first release.
+EchoTrace prioritizes **clarity, correctness, and extensibility** - a working full-stack product with AI augmentation, without over-engineering the first release.
 
 ---
 
@@ -397,4 +397,4 @@ Like what you see? Check out my other projects and work on my portfolio.
  
 ## License
  
-This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
