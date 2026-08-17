@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import CustomCursor from "@/components/CustomCursor";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
 
 export const metadata: Metadata = {
   title: "EchoTrace",
@@ -20,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} font-sans`}>
+    <html lang="en" className="font-sans">
       <body suppressHydrationWarning>
         <CustomCursor />
         <div className="bg-shape shape-1" />

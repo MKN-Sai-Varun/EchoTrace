@@ -8,7 +8,6 @@ import Session from "../models/Session.js";
 
 const router = express.Router();
 
-// Rate limiter applied only to login and register — not /me, /logout, /preferences
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30,
@@ -16,7 +15,6 @@ const authLimiter = rateLimit({
   skipSuccessfulRequests: true,
 });
 
-// Helper function to parse cookies consistently
 function getSessionIdFromCookie(cookieHeader) {
   if (!cookieHeader) return null;
   const match = cookieHeader
@@ -29,7 +27,6 @@ const isCrossSite = process.env.NODE_ENV === "production" || (process.env.FRONTE
 const COOKIE_SUFFIX = isCrossSite ? "; SameSite=None; Secure" : "; SameSite=Lax";
 
 
-// Validation rules
 const registerValidation = [
   body("username")
     .trim()
@@ -62,7 +59,6 @@ const loginValidation = [
   body("password").notEmpty().withMessage("Password is required")
 ];
 
-/* REGISTER */
 router.post("/register", authLimiter, registerValidation, async (req, res) => {
   try {
     // Check validation errors
@@ -113,7 +109,6 @@ router.post("/register", authLimiter, registerValidation, async (req, res) => {
   }
 });
 
-/* LOGIN */
 router.post("/login", authLimiter, loginValidation, async (req, res) => {
   try {
     // Check validation errors
@@ -156,7 +151,6 @@ router.post("/login", authLimiter, loginValidation, async (req, res) => {
   }
 });
 
-/* LOGOUT */
 router.post("/logout", async (req, res) => {
   try {
     const sessionId = getSessionIdFromCookie(req.headers.cookie);
@@ -177,7 +171,6 @@ router.post("/logout", async (req, res) => {
   }
 });
 
-/* GET CURRENT USER */
 router.get("/me", async (req, res) => {
   try {
     const sessionId = getSessionIdFromCookie(req.headers.cookie);
@@ -205,7 +198,6 @@ router.get("/me", async (req, res) => {
   }
 });
 
-/* UPDATE USER PREFERENCES */
 router.patch("/preferences", async (req, res) => {
   try {
     const sessionId = getSessionIdFromCookie(req.headers.cookie);

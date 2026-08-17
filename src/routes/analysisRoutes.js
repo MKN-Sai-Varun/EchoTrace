@@ -17,9 +17,6 @@ import { formatTimeInZone, resolveTimeZone } from "../utils/timezone.js";
 
 const router = express.Router();
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Auth middleware
-// ─────────────────────────────────────────────────────────────────────────────
 async function requireAuth(req, res, next) {
   try {
     const cookie = req.headers.cookie;
@@ -43,14 +40,10 @@ async function requireAuth(req, res, next) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Analysis endpoints
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** GET today's full analysis (AI + keyword fallback) */
 router.get("/today", requireAuth, async (req, res) => {
   try {
-    const analysis = await getTodayAnalysis(req.userId);
+    const timeZone = resolveTimeZone(typeof req.query.timeZone === "string" ? req.query.timeZone : undefined);
+    const analysis = await getTodayAnalysis(req.userId, timeZone);
     res.json(analysis);
   } catch (error) {
     console.error("Get analysis error:", error);
@@ -58,10 +51,10 @@ router.get("/today", requireAuth, async (req, res) => {
   }
 });
 
-/** POST force-regenerate today's analysis */
 router.post("/refresh", requireAuth, async (req, res) => {
   try {
-    const analysis = await analyzeDay(req.userId, new Date());
+    const timeZone = resolveTimeZone(typeof req.query.timeZone === "string" ? req.query.timeZone : undefined);
+    const analysis = await analyzeDay(req.userId, new Date(), timeZone);
     res.json(analysis);
   } catch (error) {
     console.error("Refresh analysis error:", error);
@@ -69,10 +62,10 @@ router.post("/refresh", requireAuth, async (req, res) => {
   }
 });
 
-/** GET consolidated full-day analysis and routine record */
 router.get("/full-analysis", requireAuth, async (req, res) => {
   try {
-    const analysis = await getTodayAnalysis(req.userId);
+    const timeZone = resolveTimeZone(typeof req.query.timeZone === "string" ? req.query.timeZone : undefined);
+    const analysis = await getTodayAnalysis(req.userId, timeZone);
     const routineRecord = await getTodayRoutineRecord(req.userId);
     res.json({ analysis, routineRecord });
   } catch (error) {
@@ -81,10 +74,10 @@ router.get("/full-analysis", requireAuth, async (req, res) => {
   }
 });
 
-/** POST force-regenerate consolidated analysis and routine record */
 router.post("/full-analysis/refresh", requireAuth, async (req, res) => {
   try {
-    const analysis = await analyzeDay(req.userId, new Date());
+    const timeZone = resolveTimeZone(typeof req.query.timeZone === "string" ? req.query.timeZone : undefined);
+    const analysis = await analyzeDay(req.userId, new Date(), timeZone);
     const routineRecord = await getTodayRoutineRecord(req.userId);
     res.json({ analysis, routineRecord });
   } catch (error) {
@@ -93,7 +86,6 @@ router.post("/full-analysis/refresh", requireAuth, async (req, res) => {
   }
 });
 
-/** POST AI full-day analysis (accepts events array from frontend) */
 router.post("/ai-analyze", requireAuth, async (req, res) => {
   try {
     const { events } = req.body;
@@ -108,7 +100,6 @@ router.post("/ai-analyze", requireAuth, async (req, res) => {
   }
 });
 
-/** POST categorize a single event label */
 router.post("/categorize-single", requireAuth, async (req, res) => {
   try {
     const { label } = req.body;
@@ -121,7 +112,6 @@ router.post("/categorize-single", requireAuth, async (req, res) => {
   }
 });
 
-/** GET analysis history */
 router.get("/history", requireAuth, async (req, res) => {
   try {
     const days = Math.min(parseInt(req.query.days) || 7, 30);
@@ -133,7 +123,6 @@ router.get("/history", requireAuth, async (req, res) => {
   }
 });
 
-/** GET category trends */
 router.get("/trends", requireAuth, async (req, res) => {
   try {
     const days = Math.min(parseInt(req.query.days) || 7, 30);
@@ -145,11 +134,6 @@ router.get("/trends", requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Mindset endpoints
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** GET today's mindset inference */
 router.get("/mindset", requireAuth, async (req, res) => {
   try {
     const mindset = await getTodayMindset(req.userId);
@@ -160,11 +144,6 @@ router.get("/mindset", requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Personalized suggestions endpoints
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** GET personalized suggestions for today */
 router.get("/suggestions", requireAuth, async (req, res) => {
   try {
     const suggestions = await getTodaySuggestions(req.userId);
@@ -175,11 +154,6 @@ router.get("/suggestions", requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Routine record endpoints
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** GET today's AI-scored routine record */
 router.get("/routine/today", requireAuth, async (req, res) => {
   try {
     const record = await getTodayRoutineRecord(req.userId);
@@ -196,7 +170,6 @@ router.get("/routine/today", requireAuth, async (req, res) => {
   }
 });
 
-/** GET routine history for N days */
 router.get("/routine/history", requireAuth, async (req, res) => {
   try {
     const days = Math.min(parseInt(req.query.days) || 7, 30);
@@ -208,11 +181,6 @@ router.get("/routine/history", requireAuth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Profile stats endpoint — aggregates everything for the profile page
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** GET aggregated profile stats (30-day window) */
 router.get("/profile-stats", requireAuth, async (req, res) => {
   try {
     const [history, trends, routineHistory] = await Promise.all([

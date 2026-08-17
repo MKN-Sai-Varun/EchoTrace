@@ -8,6 +8,7 @@ import { EventItem } from "@/types/event";
 import { RoutineRecord } from "@/types/routine";
 
 import { BarChart2, Sparkles } from "lucide-react";
+import { getClientTimeZone, formatClientTime } from "@/lib/timezone";
 
 // Extracted Components
 import DashboardHeader from "@/components/dashboard/dashboardHeader";
@@ -50,9 +51,10 @@ export default function Dashboard() {
     if (!evs.length) return;
     setIsAnalyzing(true);
     setAiError(null);
+    const timeZone = getClientTimeZone();
     const endpoint = forceRefresh
-      ? `${API}/api/analysis/full-analysis/refresh`
-      : `${API}/api/analysis/full-analysis`;
+      ? `${API}/api/analysis/full-analysis/refresh?timeZone=${encodeURIComponent(timeZone)}`
+      : `${API}/api/analysis/full-analysis?timeZone=${encodeURIComponent(timeZone)}`;
 
     try {
       const res = await fetch(endpoint, {
@@ -114,14 +116,15 @@ export default function Dashboard() {
           localStorage.setItem("customCursor", meData.customCursor ? "true" : "false");
           window.dispatchEvent(new Event("customCursorToggle"));
         }
-        const evRes = await fetch(`${API}/api/events/today`, { credentials: "include" });
+        const timeZone = getClientTimeZone();
+        const evRes = await fetch(`${API}/api/events/today?timeZone=${encodeURIComponent(timeZone)}`, { credentials: "include" });
         if (evRes.ok) {
           const raw = await evRes.json();
           const mapped: EventItem[] = raw.map((e: { _id: string; timestamp: string; label: string; category: string }) => {
             const cat = e.category ? e.category.charAt(0).toUpperCase() + e.category.slice(1) : "Uncategorized";
             return {
               _id: e._id,
-              time: new Date(e.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              time: formatClientTime(e.timestamp, timeZone),
               label: e.label,
               category: cat,
               ...(COLOR_MAP[cat] ?? COLOR_MAP.Uncategorized),
@@ -147,7 +150,7 @@ export default function Dashboard() {
     if (!eventInput.trim() || isLogging) return;
     setIsLogging(true);
     const label = eventInput;
-    const timeString = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const timeString = formatClientTime(new Date(), getClientTimeZone());
     let category = "Uncategorized",
       color = COLOR_MAP.Uncategorized.color,
       dot = COLOR_MAP.Uncategorized.dot;

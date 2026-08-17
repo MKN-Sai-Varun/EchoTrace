@@ -1,6 +1,7 @@
 import Event from "../models/Event.js";
 import Analysis from "../models/Analysis.js";
 import RoutineRecord from "../models/RoutineRecord.js";
+import { formatTimeInZone, resolveTimeZone } from "../utils/timezone.js";
 import {
   getAiAnalysis,
   getMindsetAnalysis,
@@ -109,7 +110,8 @@ function calculateProductivityScore(categories, totalEvents) {
  * Full analysis for a given day.
  * Tries Groq AI first; falls back to keyword-based analysis on failure.
  */
-export async function analyzeDay(userId, date = new Date()) {
+export async function analyzeDay(userId, date = new Date(), timeZone = "UTC") {
+  const tz = resolveTimeZone(timeZone);
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
   const endOfDay = new Date(date);
@@ -157,7 +159,7 @@ export async function analyzeDay(userId, date = new Date()) {
 
   // Prepare event payload for AI
   const eventPayload = events.map(e => ({
-    time: new Date(e.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    time: formatTimeInZone(e.timestamp, tz),
     label: e.label,
     category: e.category || detectCategory(e.label),
   }));
@@ -250,14 +252,14 @@ export async function analyzeDay(userId, date = new Date()) {
 /**
  * Get today's analysis — regenerate if stale (>5 min) or missing.
  */
-export async function getTodayAnalysis(userId) {
+export async function getTodayAnalysis(userId, timeZone = "UTC") {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   let analysis = await Analysis.findOne({ userId, date: today });
 
   if (!analysis || (Date.now() - analysis.updatedAt.getTime()) > 5 * 60 * 1000) {
-    analysis = await analyzeDay(userId, today);
+    analysis = await analyzeDay(userId, today, timeZone);
   }
 
   return analysis;
@@ -342,7 +344,8 @@ export async function getTodayMindset(userId) {
 /**
  * Get personalized suggestions for today (standalone call).
  */
-export async function getTodaySuggestions(userId) {
+export async function getTodaySuggestions(userId, timeZone = "UTC") {
+  const tz = resolveTimeZone(timeZone);
   const start = new Date();
   start.setHours(0, 0, 0, 0);
 
@@ -357,7 +360,7 @@ export async function getTodaySuggestions(userId) {
     : null;
 
   const payload = events.map(e => ({
-    time: new Date(e.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    time: formatTimeInZone(e.timestamp, tz),
     label: e.label,
   }));
 

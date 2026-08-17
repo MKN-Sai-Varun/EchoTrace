@@ -11,7 +11,6 @@ import analysisRoutes from "./routes/analysisRoutes.js";
 
 dotenv.config();
 
-// Validate required environment variables
 const requiredEnvVars = ["MONGO_URI", "PORT"];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
@@ -22,12 +21,10 @@ for (const envVar of requiredEnvVars) {
 
 const app = express();
 
-// Security middleware
 app.use(helmet({
-  contentSecurityPolicy: false // Allow inline scripts for simplicity
+  contentSecurityPolicy: false
 }));
 
-// CORS middleware
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
@@ -50,26 +47,23 @@ app.use(cors({
   credentials: true
 }));
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: { error: "Too many requests, please try again later" }
 });
 app.use(limiter);
 
-// Auth-specific rate limiting — only for login and register, not /me or /logout
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 30, // 30 attempts per 15 minutes (generous for dev, still protective)
+  max: 30,
   message: { error: "Too many login attempts, please try again later" },
-  skipSuccessfulRequests: true, // successful logins don't count against the limit
+  skipSuccessfulRequests: true,
 });
 
 app.use(express.json());
 app.use(express.static("public"));
 
-// MongoDB connection with error handling
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => {
@@ -77,12 +71,11 @@ mongoose.connect(process.env.MONGO_URI)
     process.exit(1);
   });
 
-// Handle MongoDB connection errors after initial connection
 mongoose.connection.on("error", (err) => {
   console.error("MongoDB error:", err.message);
 });
 
-app.use("/api/auth", authRoutes);  // /me, /logout, /preferences are unrestricted
+app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/analysis", analysisRoutes);
 
@@ -90,7 +83,6 @@ app.get("/", (req, res) => {
   res.sendFile("index.html", { root: "public" });
 });
 
-// Global error handler
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
   res.status(500).json({ error: "Internal server error" });

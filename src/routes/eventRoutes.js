@@ -6,7 +6,6 @@ import { createEvent, getTodayEvents } from "../services/eventService.js";
 
 const router = express.Router();
 
-/* Auth middleware */
 async function getUserFromRequest(req) {
   const cookie = req.headers.cookie;
   if (!cookie) return null;
@@ -33,7 +32,6 @@ const eventValidation = [
     .isLength({ max: 500 }).withMessage("Event label must be less than 500 characters")
 ];
 
-/* POST — create event */
 router.post("/", requireAuth, eventValidation, async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -49,10 +47,10 @@ router.post("/", requireAuth, eventValidation, async (req, res) => {
   }
 });
 
-/* GET — today's events */
 router.get("/today", requireAuth, async (req, res) => {
   try {
-    const events = await getTodayEvents(req.userId);
+    const timeZone = typeof req.query.timeZone === "string" ? req.query.timeZone : undefined;
+    const events = await getTodayEvents(req.userId, timeZone);
     res.json(events);
   } catch (error) {
     console.error("Get events error:", error);
@@ -60,7 +58,6 @@ router.get("/today", requireAuth, async (req, res) => {
   }
 });
 
-/* DELETE — remove a single event (must belong to the authenticated user) */
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const event = await Event.findOneAndDelete({
