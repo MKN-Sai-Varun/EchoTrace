@@ -38,20 +38,17 @@ app.use(helmet({
 }));
 
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  process.env.FRONTEND_URL?.replace(/\/$/, ""),
+].filter(Boolean);
+
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    
-    const frontendUrl = (process.env.FRONTEND_URL || "").replace(/\/$/, "");
     const cleanOrigin = origin.replace(/\/$/, "");
-    
-    const isAllowed = 
-      cleanOrigin === "http://localhost:3001" ||
-      cleanOrigin === "http://localhost:3000" ||
-      cleanOrigin === frontendUrl ||
-      cleanOrigin.endsWith(".vercel.app");
-      
-    if (isAllowed) {
+    if (allowedOrigins.includes(cleanOrigin)) {
       callback(null, true);
     } else {
       callback(new Error(`Origin ${origin} not allowed by CORS`));
@@ -60,6 +57,7 @@ app.use(cors({
   credentials: true
 }));
 
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -67,12 +65,12 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 30,
-  message: { error: "Too many login attempts, please try again later" },
-  skipSuccessfulRequests: true,
-});
+// const authLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,
+//   max: 30,
+//   message: { error: "Too many login attempts, please try again later" },
+//   skipSuccessfulRequests: true,
+// });
 
 app.use(express.json());
 app.use(express.static("public"));

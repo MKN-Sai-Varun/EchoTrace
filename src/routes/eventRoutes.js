@@ -36,10 +36,15 @@ router.post("/", requireAuth, eventValidation, async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
+    const VALID_CATEGORIES = ["Work", "Health", "Social", "Learning", "Food", "Entertainment", "Personal", "Recovery", "Creative", "Uncategorized"];
+    const rawCategory = req.body.category?.trim();
+    const category = VALID_CATEGORIES.includes(rawCategory) ? rawCategory : undefined;
+
     const event = await createEvent(req.userId, {
-      label: req.body.label.trim(),
-      category: req.body.category?.trim()
-    });
+    label: req.body.label.trim(),
+    category
+  });
+
     res.json({ message: "Event logged successfully", event });
   } catch (error) {
     console.error("Create event error:", error);

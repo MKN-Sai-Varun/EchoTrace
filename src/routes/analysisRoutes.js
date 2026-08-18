@@ -86,19 +86,19 @@ router.post("/full-analysis/refresh", requireAuth, async (req, res) => {
   }
 });
 
+// After
 router.post("/ai-analyze", requireAuth, async (req, res) => {
   try {
-    const { events } = req.body;
-    if (!events || !Array.isArray(events)) {
-      return res.status(400).json({ error: "events array is required" });
-    }
+    const timeZone = resolveTimeZone(typeof req.query.timeZone === "string" ? req.query.timeZone : undefined);
+    const events = await getTodayEvents(req.userId, timeZone);
     const result = await getAiAnalysis(events);
     res.json(result);
   } catch (error) {
     console.error("AI analyze error:", error);
-    res.status(500).json({ error: "AI analysis failed: " + error.message });
+    res.status(500).json({ error: "AI analysis failed. Please try again." });
   }
 });
+
 
 router.post("/categorize-single", requireAuth, async (req, res) => {
   try {

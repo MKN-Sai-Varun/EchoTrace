@@ -99,8 +99,9 @@ router.post("/register", authLimiter, registerValidation, async (req, res) => {
 
     res.setHeader(
       "Set-Cookie",
-      `sessionId=${sessionId}; HttpOnly; Path=/${COOKIE_SUFFIX}`
+      `sessionId=${sessionId}; HttpOnly; Path=/; Max-Age=604800${COOKIE_SUFFIX}`
     );
+
 
     res.json({ message: "Registered successfully" });
   } catch (error) {
@@ -141,8 +142,9 @@ router.post("/login", authLimiter, loginValidation, async (req, res) => {
 
     res.setHeader(
       "Set-Cookie",
-      `sessionId=${sessionId}; HttpOnly; Path=/${COOKIE_SUFFIX}`
+      `sessionId=${sessionId}; HttpOnly; Path=/; Max-Age=604800${COOKIE_SUFFIX}`
     );
+
 
     res.json({ message: "Logged in successfully" });
   } catch (error) {
