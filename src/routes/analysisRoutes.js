@@ -83,6 +83,9 @@ router.post("/categorize-single", requireAuth, async (req, res) => {
   try {
     const { label } = req.body;
     if (!label) return res.status(400).json({ error: "label is required" });
+    if (typeof label !== "string" || label.trim().length > 500) {
+      return res.status(400).json({ error: "label must be a string under 500 characters" });
+    }
     const result = await getAiCategory(label);
     res.json(result);
   } catch (error) {
