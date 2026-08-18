@@ -7,7 +7,10 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production"
+  ? (() => { throw new Error("NEXT_PUBLIC_API_URL is not set"); })()
+  : "http://localhost:3000");
+
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);

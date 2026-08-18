@@ -28,7 +28,10 @@ import RoutineFeedbackCard from "@/components/dashboard/routineFeedbackCard";
 import DayPlanCard from "@/components/dashboard/dayPlanCard";
 import AiAgentChat from "@/components/dashboard/aiAgentChat";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production"
+  ? (() => { throw new Error("NEXT_PUBLIC_API_URL is not set"); })()
+  : "http://localhost:3000");
+
 
 export default function Dashboard() {
   const [pendingAnalysis, setPendingAnalysis] = useState(false);
