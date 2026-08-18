@@ -20,6 +20,7 @@ for (const envVar of requiredEnvVars) {
 }
 
 const app = express();
+app.set("trust proxy",1);
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -67,7 +68,8 @@ app.use(limiter);
 
 
 app.use(express.json());
-app.use(express.static("public"));
+
+
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
@@ -84,9 +86,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/analysis", analysisRoutes);
 
-app.get("/", (req, res) => {
-  res.sendFile("index.html", { root: "public" });
-});
+
 
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
