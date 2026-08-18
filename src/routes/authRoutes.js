@@ -35,8 +35,15 @@ const registerValidation = [
     .matches(/^[a-zA-Z0-9_]+$/)
     .withMessage("Username can only contain letters, numbers, and underscores"),
   body("password")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters"),
+  .isLength({ min: 8 })
+  .withMessage("Password must be at least 8 characters")
+  .matches(/[A-Z]/)
+  .withMessage("Password must contain at least one uppercase letter")
+  .matches(/[0-9]/)
+  .withMessage("Password must contain at least one number")
+  .matches(/[^A-Za-z0-9]/)
+  .withMessage("Password must contain at least one special character"),
+
   body("email")
     .optional({ checkFalsy: true })
     .isEmail()

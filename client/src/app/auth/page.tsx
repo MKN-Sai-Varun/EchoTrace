@@ -203,6 +203,9 @@ export default function AuthPage() {
                         className="glass-input bg-slate-50/80 w-full pl-11 pr-4 py-3.5 text-sm focus:bg-white"
                         placeholder="••••••••" autoComplete="current-password" />
                     </div>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Min. 8 characters with uppercase, number, and special character.
+                    </p>
                   </div>
 
                   {error && (
@@ -266,7 +269,7 @@ export default function AuthPage() {
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
                         className="glass-input bg-slate-50/80 w-full pl-11 pr-4 py-3.5 text-sm focus:border-emerald-400 focus:ring-emerald-400/20 focus:bg-white"
-                        placeholder="Min. 6 characters" autoComplete="new-password" />
+                        placeholder="Min. 8 chars, upper, number, symbol" autoComplete="new-password" />
                     </div>
                   </div>
 
