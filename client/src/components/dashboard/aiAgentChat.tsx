@@ -13,6 +13,7 @@ import {
   Coffee,
 } from "lucide-react";
 import { cleanChatText } from "@/lib/cleanChatText";
+import { getCsrfToken } from "@/lib/csrf";
 import { getClientTimeZone } from "@/lib/timezone";
 
 type Message = {
@@ -66,9 +67,13 @@ export default function AiAgentChat({ apiUrl = "http://localhost:3000" }: AiAgen
     setIsTyping(true);
 
     try {
+      const csrfToken = await getCsrfToken();
       const res = await fetch(`${apiUrl}/api/analysis/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+        },
         body: JSON.stringify({
           message: textToSend,
           timeZone: getClientTimeZone(),

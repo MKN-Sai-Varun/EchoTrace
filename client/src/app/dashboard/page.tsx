@@ -9,6 +9,7 @@ import { RoutineRecord } from "@/types/routine";
 
 import { BarChart2, Sparkles } from "lucide-react";
 import { getClientTimeZone, formatClientTime } from "@/lib/timezone";
+import { getCsrfToken, clearCsrfToken } from "@/lib/csrf";
 
 // Extracted Components
 import DashboardHeader from "@/components/dashboard/dashboardHeader";
@@ -62,7 +63,7 @@ export default function Dashboard() {
     try {
       const res = await fetch(endpoint, {
         method: forceRefresh ? "POST" : "GET",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(forceRefresh ? { "X-CSRF-Token": await getCsrfToken() } : {}) },
         credentials: "include",
       });
       if (res.ok) {
@@ -160,7 +161,7 @@ export default function Dashboard() {
     try {
       const res = await fetch(`${API}/api/analysis/categorize-single`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": await getCsrfToken() },
         credentials: "include",
         body: JSON.stringify({ label }),
       });
@@ -177,7 +178,7 @@ export default function Dashboard() {
     try {
       const sr = await fetch(`${API}/api/events`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": await getCsrfToken() },
         credentials: "include",
         body: JSON.stringify({ label, category }),
       });
@@ -200,7 +201,7 @@ export default function Dashboard() {
     if (ev._id) {
       setDeletingId(ev._id);
       try {
-        await fetch(`${API}/api/events/${ev._id}`, { method: "DELETE", credentials: "include" });
+        await fetch(`${API}/api/events/${ev._id}`, { method: "DELETE", credentials: "include", headers: { "X-CSRF-Token": await getCsrfToken() } });
       } catch {
         /* best-effort */
       }
@@ -217,7 +218,9 @@ export default function Dashboard() {
   };
 
   const handleLogout = async () => {
-    await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" });
+    const csrfToken = await getCsrfToken();
+    await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include", headers: { "X-CSRF-Token": csrfToken } });
+    clearCsrfToken();
     window.location.href = "/auth";
   };
 

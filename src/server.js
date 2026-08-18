@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import crypto from "crypto";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -8,6 +9,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import analysisRoutes from "./routes/analysisRoutes.js";
+import { csrfProtection } from "./middleware/csrf.js";
 
 dotenv.config();
 
@@ -69,6 +71,21 @@ app.use(limiter);
 
 app.use(express.json({limit:"16kb"}));
 
+// CSRF token endpoint — must be registered before csrfProtection is applied to routes
+// Sets a readable (non-HttpOnly) cookie the client echoes back as X-CSRF-Token header
+const isCrossSite = process.env.NODE_ENV === "production" ||
+  (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes("localhost"));
+const csrfCookieSuffix = isCrossSite ? "; SameSite=None; Secure" : "; SameSite=Lax";
+
+app.get("/api/csrf-token", (req, res) => {
+  const token = crypto.randomBytes(32).toString("hex");
+  res.setHeader(
+    "Set-Cookie",
+    `csrfToken=${token}; Path=/; Max-Age=86400${csrfCookieSuffix}`
+  );
+  res.json({ csrfToken: token });
+});
+
 
 
 mongoose.connect(process.env.MONGO_URI)
@@ -82,9 +99,9 @@ mongoose.connection.on("error", (err) => {
   console.error("MongoDB error:", err.message);
 });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/events", eventRoutes);
-app.use("/api/analysis", analysisRoutes);
+app.use("/api/auth", csrfProtection, authRoutes);
+app.use("/api/events", csrfProtection, eventRoutes);
+app.use("/api/analysis", csrfProtection, analysisRoutes);
 
 
 

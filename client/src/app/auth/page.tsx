@@ -6,6 +6,7 @@ import {
   CheckCircle2, TrendingUp, Clock, Brain, Zap,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { getCsrfToken } from "@/lib/csrf";
 
 const API = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production"
   ? (() => { throw new Error("NEXT_PUBLIC_API_URL is not set"); })()
@@ -54,9 +55,10 @@ export default function AuthPage() {
     const body = isLogin ? { username, password } : { username, email, password };
 
     try {
+      const csrfToken = await getCsrfToken();
       const res = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
         credentials: "include",
         body: JSON.stringify(body),
       });

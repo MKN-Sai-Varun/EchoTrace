@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Activity, ArrowLeft } from "lucide-react";
+import { getCsrfToken } from "@/lib/csrf";
 
 // Extracted Components
 import ProfileHeader from "@/components/profile/profileHeader";
@@ -171,9 +172,13 @@ export default function ProfilePage() {
                   if (!user) return;
                   const newValue = !user.customCursor;
                   try {
+                    const csrfToken = await getCsrfToken();
                     const res = await fetch(`${API}/api/auth/preferences`, {
                       method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
+                      headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-Token": csrfToken,
+                      },
                       credentials: "include",
                       body: JSON.stringify({ customCursor: newValue }),
                     });
