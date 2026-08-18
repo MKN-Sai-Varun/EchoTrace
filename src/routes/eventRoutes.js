@@ -1,31 +1,11 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
-import Session from "../models/Session.js";
+import { requireAuth } from "../middleware/requireAuth.js";
 import Event from "../models/Event.js";
 import { createEvent, getTodayEvents } from "../services/eventService.js";
 
 const router = express.Router();
 
-async function getUserFromRequest(req) {
-  const cookie = req.headers.cookie;
-  if (!cookie) return null;
-  const sessionId = cookie.split("; ").find(r => r.startsWith("sessionId="))?.split("=")[1];
-  if (!sessionId) return null;
-  const session = await Session.findOne({ sessionId });
-  return session?.userId || null;
-}
-
-async function requireAuth(req, res, next) {
-  try {
-    const userId = await getUserFromRequest(req);
-    if (!userId) return res.status(401).json({ error: "Please log in to continue" });
-    req.userId = userId;
-    next();
-  } catch (error) {
-    console.error("Auth error:", error);
-    res.status(500).json({ error: "Authentication failed" });
-  }
-}
 
 const eventValidation = [
   body("label").trim().notEmpty().withMessage("Event label is required")

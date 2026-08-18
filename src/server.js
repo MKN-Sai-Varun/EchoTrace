@@ -11,7 +11,7 @@ import analysisRoutes from "./routes/analysisRoutes.js";
 
 dotenv.config();
 
-const requiredEnvVars = ["MONGO_URI", "PORT"];
+const requiredEnvVars = ["MONGO_URI", "PORT","GROQ_API_KEY"];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
     console.error(`Error: Missing required environment variable: ${envVar}`);
@@ -65,12 +65,6 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// const authLimiter = rateLimit({
-//   windowMs: 15 * 60 * 1000,
-//   max: 30,
-//   message: { error: "Too many login attempts, please try again later" },
-//   skipSuccessfulRequests: true,
-// });
 
 app.use(express.json());
 app.use(express.static("public"));

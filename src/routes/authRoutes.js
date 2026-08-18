@@ -83,7 +83,6 @@ router.post("/register", authLimiter, registerValidation, async (req, res) => {
       }
     }
 
-    console.log("Registering user:", username);
     const hash = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -119,7 +118,7 @@ router.post("/login", authLimiter, loginValidation, async (req, res) => {
     }
 
     const { username, password } = req.body;
-    console.log("Logging in user:", username);
+    
 
     // Allow login with either username or email
     const user = await User.findOne({
