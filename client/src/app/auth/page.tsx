@@ -62,7 +62,10 @@ export default function AuthPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Something went wrong."); setLoading(false); return; }
+      // Small delay to ensure cookie is committed before navigation
+      await new Promise(resolve => setTimeout(resolve, 100));
       window.location.href = "/dashboard";
+
     } catch {
       setError("Cannot connect to server. Is the backend running?");
       setLoading(false);
