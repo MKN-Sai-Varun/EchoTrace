@@ -203,9 +203,6 @@ export default function AuthPage() {
                         className="glass-input bg-slate-50/80 w-full pl-11 pr-4 py-3.5 text-sm focus:bg-white"
                         placeholder="••••••••" autoComplete="current-password" />
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">
-                      Min. 8 characters with uppercase, number, and special character.
-                    </p>
                   </div>
 
                   {error && (
@@ -269,8 +266,25 @@ export default function AuthPage() {
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
                         className="glass-input bg-slate-50/80 w-full pl-11 pr-4 py-3.5 text-sm focus:border-emerald-400 focus:ring-emerald-400/20 focus:bg-white"
-                        placeholder="Min. 8 chars, upper, number, symbol" autoComplete="new-password" />
+                        placeholder="Create a strong password" autoComplete="new-password" />
                     </div>
+                    {password.length > 0 && (
+                      <div className="grid grid-cols-2 gap-1 mt-1">
+                        {[
+                          { label: "8+ characters",  met: password.length >= 8 },
+                          { label: "Uppercase letter", met: /[A-Z]/.test(password) },
+                          { label: "Number",          met: /[0-9]/.test(password) },
+                          { label: "Special character", met: /[^A-Za-z0-9]/.test(password) },
+                        ].map(({ label, met }) => (
+                          <span key={label} className={`flex items-center gap-1 text-xs font-medium transition-colors ${met ? "text-emerald-600" : "text-slate-400"}`}>
+                            <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[9px] font-bold ${met ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-400"}`}>
+                              {met ? "✓" : "·"}
+                            </span>
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {error && (
